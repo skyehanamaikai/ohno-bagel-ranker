@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oh No! Bagels — Limited Drop Tier Ranker</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Fredoka (Chunky Rounded Display), Yellowtail (Sweeping Cursive Script), Plus Jakarta Sans (Clean UI), Space Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Yellowtail&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#F3EDE2',
+            'cream-light': '#FAF7F2',
+            'cream-dark': '#E6DEC8',
+            navy: '#18344B',
+            'navy-deep': '#102435',
+            'navy-muted': '#3C5870',
+            sky: '#7EB5E6',
+            'sky-soft': '#D8EBFA',
+            'sky-deep': '#639FD6',
+            hairline: '#D9D0C1'
+          },
+          fontFamily: {
+            display: ['Fredoka', 'system-ui', 'sans-serif'],
+            script: ['Yellowtail', 'cursive'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"Space Mono"', 'monospace']
+          },
+          boxShadow: {
+            soft: '0 4px 16px rgba(24, 52, 75, 0.06)',
+            elevated: '0 14px 34px rgba(24, 52, 75, 0.14)',
+            card: '0 3px 12px rgba(24, 52, 75, 0.08)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Oh No! Bagels Brand System: Periwinkle Sky Blue (#7EB5E6), Midnight Navy (#18344B), Warm Cream (#F3EDE2) */
+    body {
+      background-color: #F3EDE2;
+      color: #18344B;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Bagel Card Surface */
+    .bagel-card {
+      background-color: #FFFFFF;
+      border: 2px solid #18344B;
+      box-shadow: 0 3px 0 #18344B;
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.18s ease;
+    }
+
+    .bagel-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #18344B;
+    }
+
+    .bagel-card:active {
+      transform: translateY(0px);
+      box-shadow: 0 2px 0 #18344B;
+    }
+
+    /* Pill Buttons */
+    .pill-btn-navy {
+      background-color: #18344B;
+      color: #F3EDE2;
+      border: 2px solid #18344B;
+      border-radius: 9999px;
+      transition: background-color 0.18s ease, color 0.18s ease, transform 0.15s ease;
+    }
+
+    .pill-btn-navy:hover {
+      background-color: #7EB5E6;
+      color: #18344B;
+      transform: translateY(-1px);
+    }
+
+    .pill-btn-sky {
+      background-color: #7EB5E6;
+      color: #18344B;
+      border: 2px solid #18344B;
+      border-radius: 9999px;
+      transition: background-color 0.18s ease, color 0.18s ease, transform 0.15s ease;
+    }
+
+    .pill-btn-sky:hover {
+      background-color: #18344B;
+      color: #F3EDE2;
+      transform: translateY(-1px);
+    }
+
+    .pill-btn-cream {
+      background-color: #F3EDE2;
+      color: #18344B;
+      border: 2px solid #18344B;
+      border-radius: 9999px;
+      transition: background-color 0.18s ease, transform 0.15s ease;
+    }
+
+    .pill-btn-cream:hover {
+      background-color: #7EB5E6;
+      transform: translateY(-1px);
+    }
+
+    /* Selected item highlight for click-to-assign */
+    .selected-drop {
+      background-color: #D8EBFA !important;
+      box-shadow: 0 0 0 3px #7EB5E6, 0 5px 0 #18344B !important;
+      transform: translateY(-3px);
+    }
+
+    /* Drag-over zone highlight */
+    .drag-over {
+      background-color: #D8EBFA !important;
+      outline: 2px dashed #18344B;
+      outline-offset: -4px;
+    }
+
+    /* Bakery Ticket Paper Styling */
+    .ticket-paper {
+      background: #FAF7F2;
+      border: 2px solid #18344B;
+      box-shadow: 0 18px 40px rgba(24, 52, 75, 0.25);
+    }
+
+    @keyframes gentleFade {
+      0% { transform: translateY(6px); opacity: 0.4; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .animate-gentle-fade {
+      animation: gentleFade 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #receipt-modal, #receipt-modal * { visibility: visible; }
+      #receipt-modal { position: absolute; inset: 0; background: white; padding: 0; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-sky selection:text-navy">
+
+  <!-- TOP MIDNIGHT NAVY ANNOUNCEMENT BAR -->
+  <div class="bg-navy text-cream border-b-2 border-navy-deep py-2 px-4 text-xs">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-block w-2 h-2 rounded-full bg-sky"></span>
+        <span class="font-display tracking-wide uppercase text-[11px] text-sky">The oven is on.</span>
+      </div>
+      <a href="https://www.ohnobagels.com/" target="_blank" rel="noopener noreferrer" class="text-cream font-semibold underline decoration-sky underline-offset-4 hover:text-sky transition">
+        ohnobagels.com ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- HEADER WITH NAVY, SKY BLUE BADGE & CREAM SCRIPT -->
+  <header class="bg-navy text-cream border-b-2 border-navy-deep sticky top-0 z-30 shadow-soft">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        
+        <!-- Brand Lockup -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <!-- Sky Blue Bagel Emblem -->
+            <div class="w-12 h-12 rounded-full bg-sky text-navy border-2 border-cream flex items-center justify-center shrink-0 shadow-xs">
+              <svg viewBox="0 0 48 48" class="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="17" stroke="#18344B" stroke-width="2.6" fill="#F3EDE2"/>
+                <circle cx="24" cy="24" r="6" stroke="#18344B" stroke-width="2.6" fill="#7EB5E6"/>
+                <circle cx="16" cy="14" r="1.4" fill="#18344B"/>
+                <circle cx="32" cy="15" r="1.4" fill="#18344B"/>
+                <circle cx="34" cy="28" r="1.4" fill="#18344B"/>
+                <circle cx="22" cy="35" r="1.4" fill="#18344B"/>
+                <circle cx="14" cy="27" r="1.4" fill="#18344B"/>
+              </svg>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2.5">
+                <h1 class="font-script text-3xl sm:text-4xl text-cream leading-none tracking-normal">
+                  Oh No! Bagels
+                </h1>
+                <span class="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-display font-bold uppercase tracking-wider bg-sky text-navy">
+                  Limited Drop Ranker
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Switcher & Modal Triggers -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Mode Switcher Segmented Pill -->
+          <div class="inline-flex rounded-full bg-navy-deep p-1 border border-sky/30">
+            <button id="tab-tier" onclick="switchMode('tier')" class="px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition bg-sky text-navy">
+              Tier Rack
+            </button>
+            <button id="tab-battle" onclick="switchMode('battle')" class="px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition text-cream/80 hover:text-cream">
+              1v1 Bake-Off
+            </button>
+          </div>
+
+          <!-- + Add Drop -->
+          <button onclick="openAddModal()" class="pill-btn-cream px-4 py-2 text-xs font-bold flex items-center gap-1.5">
+            <span>+ Add Drop</span>
+          </button>
+
+          <!-- Bake Ticket -->
+          <button onclick="openReceiptModal()" class="pill-btn-sky px-4 py-2 text-xs font-bold flex items-center gap-1.5">
+            <span>Bake Ticket</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+    <!-- ========================================================= -->
+    <!-- MODE 1: INTERACTIVE TIER RACK BOARD                       -->
+    <!-- ========================================================= -->
+    <section id="view-tier" class="space-y-8">
+      
+      <!-- Editorial Hero Intro + Quick Actions -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b-2 border-navy/15">
+        <div class="max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy border border-navy text-xs font-bold mb-3">
+            <span class="font-script text-base leading-none">Limited Drops</span>
+            <span>·</span>
+            <span>Lehi, Utah</span>
+          </div>
+          <h2 class="font-display font-bold text-4xl sm:text-5xl tracking-tight text-navy uppercase leading-[1.02]">
+            Rank the bake.
+          </h2>
+          <p id="selection-status" class="text-sm text-navy-muted mt-3 leading-relaxed">
+            Drag any bagel onto a shelf below, or tap a bagel card and click a tier row to drop it in.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button id="clear-selection-btn" onclick="clearSelection()" class="hidden px-4 py-2 rounded-full text-xs font-bold bg-sky text-navy border-2 border-navy">
+            Cancel selection
+          </button>
+          <button onclick="loadSampleRanking()" class="pill-btn-sky px-4 py-2 text-xs font-bold">
+            Load Sample Ranking
+          </button>
+          <button onclick="confirmReset()" class="pill-btn-cream px-4 py-2 text-xs font-bold">
+            Reset Rack
+          </button>
+        </div>
+      </div>
+
+      <!-- TIER SHELVES CONTAINER (S, A, B, C, D) -->
+      <div id="tier-board" class="space-y-3.5">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <!-- THE COOLING RACK (UNRANKED TRAY STYLED IN #7EB5E6 SKY BLUE) -->
+      <div class="pt-4">
+        <div class="bg-sky border-2 border-navy rounded-3xl p-6 sm:p-8 shadow-soft">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b-2 border-navy/20">
+            <div>
+              <span class="font-script text-2xl sm:text-3xl text-navy block leading-none mb-1">
+                Here now. Gone soon.
+              </span>
+              <h3 class="font-display font-bold text-3xl sm:text-4xl text-navy uppercase tracking-tight">
+                The cooling rack.
+              </h3>
+              <p class="text-xs sm:text-sm text-navy/85 mt-1.5 font-medium">
+                Tap any bagel card to select it, then tap a tier shelf above—or drag and drop directly.
+              </p>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div id="filter-chips" class="flex flex-wrap gap-2">
+              <button onclick="setFilter('all')" data-filter="all" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-navy text-cream transition">
+                All Drops (<span id="count-all">16</span>)
+              </button>
+              <button onclick="setFilter('current')" data-filter="current" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-cream text-navy hover:bg-white transition">
+                Current Drop (<span id="count-current">1</span>)
+              </button>
+              <button onclick="setFilter('fall')" data-filter="fall" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-cream text-navy hover:bg-white transition">
+                Fall / Holiday (<span id="count-fall">7</span>)
+              </button>
+              <button onclick="setFilter('summer')" data-filter="summer" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-cream text-navy hover:bg-white transition">
+                Spring / Summer (<span id="count-summer">8</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Unranked Drop Zone -->
+          <div 
+            id="unranked-zone"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event, 'unranked')"
+            onclick="handleZoneClick('unranked')"
+            class="mt-6 min-h-[160px] rounded-2xl transition-colors grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <!-- Unranked Cards Injected Here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- MODE 2: MIDNIGHT NAVY 1v1 HEAD-TO-HEAD "BAKE-OFF"         -->
+    <!-- ========================================================= -->
+    <section id="view-battle" class="hidden space-y-8">
+      <div class="bg-navy text-cream border-2 border-navy-deep rounded-3xl p-6 sm:p-10 shadow-elevated">
+        
+        <!-- Header & Controls -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-sky/25">
+          <div class="max-w-xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy text-xs font-bold mb-3">
+              <span class="font-script text-base leading-none">Head-to-Head</span>
+              <span>·</span>
+              <span>Keys 1 / 2 or ← / →</span>
+            </div>
+            <h2 class="font-display font-bold text-4xl sm:text-5xl text-cream uppercase tracking-tight leading-[1.04]">
+              1v1 Bake-Off.
+            </h2>
+            <p class="text-sm text-cream/80 mt-3 leading-relaxed">
+              Pick the bagel you'd grab first out of the oven. Every vote updates live Elo ratings so you can auto-populate your Tier Rack.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="bg-navy-deep border border-sky/40 rounded-2xl px-4 py-2 text-center">
+              <div class="text-[11px] text-sky font-bold uppercase tracking-wider">Rounds</div>
+              <div id="battle-count" class="font-display text-2xl font-bold text-cream">0</div>
+            </div>
+            <button onclick="applyBakeOffToTiers()" class="pill-btn-sky px-5 py-3 text-xs font-bold flex items-center gap-2">
+              <span>Apply Bake-Off to Tier Rack</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 1v1 Arena + Live Elo Leaderboard -->
+        <div class="py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Left 7 Cols: Side-by-Side Contenders -->
+          <div class="lg:col-span-7">
+            <div class="grid grid-cols-1 sm:grid-cols-11 gap-4 items-stretch">
+              
+              <!-- Left Contender -->
+              <div id="contender-left" onclick="voteBattle('left')" class="sm:col-span-5 bg-cream text-navy border-2 border-sky rounded-2xl p-6 cursor-pointer flex flex-col justify-between group hover:bg-sky transition">
+                <!-- Populated by JS -->
+              </div>
+
+              <!-- VS Badge -->
+              <div class="sm:col-span-1 flex items-center justify-center">
+                <span class="w-10 h-10 rounded-full bg-sky border-2 border-cream text-navy font-script text-xl flex items-center justify-center shadow-xs">
+                  vs
+                </span>
+              </div>
+
+              <!-- Right Contender -->
+              <div id="contender-right" onclick="voteBattle('right')" class="sm:col-span-5 bg-cream text-navy border-2 border-sky rounded-2xl p-6 cursor-pointer flex flex-col justify-between group hover:bg-sky transition">
+                <!-- Populated by JS -->
+              </div>
+
+            </div>
+
+            <!-- Skip / Reset Controls -->
+            <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <button onclick="nextBattlePair()" class="pill-btn-cream px-5 py-2 text-xs font-bold">
+                Skip pairing
+              </button>
+              <button onclick="resetBattleStats()" class="px-4 py-2 text-xs font-semibold text-cream/75 hover:text-sky transition">
+                Reset Elo scores
+              </button>
+            </div>
+          </div>
+
+          <!-- Right 5 Cols: Real-Time Elo Standings -->
+          <div class="lg:col-span-5 bg-navy-deep border border-sky/30 rounded-2xl p-5">
+            <div class="flex items-baseline justify-between mb-4 pb-3 border-b border-sky/20">
+              <h3 class="font-display font-bold text-xl text-cream uppercase">Live Elo Standings</h3>
+              <span class="font-script text-lg text-sky">Top of the batch</span>
+            </div>
+            <div id="battle-leaderboard" class="space-y-2 max-h-[430px] overflow-y-auto pr-1">
+              <!-- Leaderboard rows injected by JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-navy text-cream border-t-2 border-navy-deep mt-16 py-8 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-3">
+        <span class="font-script text-2xl text-sky">Oh No! Bagels</span>
+        <span class="text-cream/40">·</span>
+        <span class="text-cream/85">Limited Drop Tier Ranker</span>
+      </div>
+      <div class="text-cream/80 text-center sm:text-right">
+        3156 N 1200 W, Suite 106 · Lehi, UT 84043 · <span class="text-sky font-semibold">Here now. Gone soon.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 1: ADD PAST DROP MODAL                              -->
+  <!-- ========================================================= -->
+  <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/60 backdrop-blur-xs p-4">
+    <div class="bg-cream border-2 border-navy rounded-3xl shadow-elevated max-w-md w-full p-7 relative animate-gentle-fade">
+      <div class="flex items-start justify-between pb-4 border-b-2 border-navy/15">
+        <div>
+          <span class="font-script text-2xl text-navy block leading-none">Instagram &amp; Weekly Archive</span>
+          <h3 class="font-display font-bold text-3xl text-navy uppercase mt-1">Add past drop.</h3>
+        </div>
+        <button onclick="closeAddModal()" class="w-8 h-8 rounded-full border-2 border-navy bg-white hover:bg-sky text-navy text-xs font-bold flex items-center justify-center transition">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-drop-form" onsubmit="handleAddDrop(event)" class="mt-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">Bagel Name</label>
+          <input type="text" id="drop-name" required placeholder="e.g., Lemon Poppy Seed Bagel" class="w-full px-4 py-2.5 rounded-xl border-2 border-navy bg-white text-sm text-navy placeholder:text-navy/40 focus:outline-none focus:bg-sky-soft/40 transition" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">Drop Season</label>
+            <select id="drop-category" class="w-full px-3.5 py-2.5 rounded-xl border-2 border-navy bg-white text-sm text-navy focus:outline-none transition">
+              <option value="current">Current Drop</option>
+              <option value="fall">Fall / Holiday Drop</option>
+              <option value="summer">Spring / Summer Drop</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">Drop Window / Tag</label>
+            <input type="text" id="drop-date" placeholder="e.g., Nov 2026" class="w-full px-3.5 py-2.5 rounded-xl border-2 border-navy bg-white text-sm text-navy placeholder:text-navy/40 focus:outline-none focus:bg-sky-soft/40 transition" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">Official Pairing &amp; Flavor Notes</label>
+          <textarea id="drop-desc" rows="3" required placeholder="Describe the bagel and official schmear pairing..." class="w-full px-4 py-2.5 rounded-xl border-2 border-navy bg-white text-sm text-navy placeholder:text-navy/40 focus:outline-none focus:bg-sky-soft/40 transition"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeAddModal()" class="pill-btn-cream px-4 py-2.5 text-xs font-bold">
+            Cancel
+          </button>
+          <button type="submit" class="pill-btn-navy px-5 py-2.5 text-xs font-bold">
+            Add to cooling rack
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 2: SHAREABLE BAKE TICKET RECEIPT MODAL              -->
+  <!-- ========================================================= -->
+  <div id="receipt-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/60 backdrop-blur-xs p-4 overflow-y-auto">
+    <div class="max-w-md w-full my-8 relative animate-gentle-fade">
+      <!-- Top Controls -->
+      <div class="no-print mb-3 flex items-center justify-end gap-2">
+        <button onclick="window.print()" class="pill-btn-cream px-3.5 py-1.5 text-xs font-bold">
+          Print
+        </button>
+        <button onclick="closeReceiptModal()" class="pill-btn-cream px-3.5 py-1.5 text-xs font-bold">
+          Close ✕
+        </button>
+      </div>
+
+      <!-- Bakery Ticket -->
+      <div class="ticket-paper rounded-3xl p-7 sm:p-8 text-navy">
+        <!-- Ticket Header -->
+        <div class="text-center border-b-2 border-navy pb-5">
+          <span class="inline-flex items-center px-3 py-1 rounded-full bg-sky border border-navy text-[10px] font-display font-bold uppercase tracking-widest text-navy">
+            Official Bake Ticket
+          </span>
+          <h3 class="font-script text-4xl text-navy mt-2">Oh No! Bagels</h3>
+          <p class="text-xs font-semibold text-navy/80 mt-1">3156 N 1200 W, Suite 106 · Lehi, UT 84043</p>
+          <p id="receipt-timestamp" class="font-mono text-[11px] text-navy-muted mt-1"></p>
+        </div>
+
+        <!-- Ticket Body -->
+        <div id="receipt-content" class="py-5 space-y-4 text-xs">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Ticket Footer & Copy Button -->
+        <div class="border-t-2 border-navy pt-5 text-center space-y-3">
+          <p class="font-script text-2xl text-navy">The oven is on. Here now. Gone soon.</p>
+          <button onclick="copyReceiptText()" class="no-print pill-btn-navy w-full py-2.5 text-xs font-bold">
+            Copy Bake Ticket to Clipboard
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 3: RESET CONFIRMATION MODAL                         -->
+  <!-- ========================================================= -->
+  <div id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/60 backdrop-blur-xs p-4">
+    <div class="bg-cream border-2 border-navy rounded-3xl shadow-elevated max-w-sm w-full p-6 text-navy animate-gentle-fade">
+      <h3 class="font-display font-bold text-2xl uppercase">Reset the rack?</h3>
+      <p class="text-xs text-navy-muted mt-2 leading-relaxed">
+        This will clear all shelves and move every limited-edition bagel back onto the cooling rack.
+      </p>
+      <div class="mt-5 flex items-center justify-end gap-2.5">
+        <button onclick="closeResetModal()" class="pill-btn-cream px-4 py-2 text-xs font-bold">
+          Cancel
+        </button>
+        <button onclick="executeReset()" class="pill-btn-navy px-4 py-2 text-xs font-bold">
+          Reset all
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- FLOATING TOAST NOTIFICATION                               -->
+  <!-- ========================================================= -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-navy text-cream border-2 border-sky rounded-full px-5 py-2.5 shadow-elevated flex items-center gap-2.5 text-xs font-bold">
+      <span class="w-2 h-2 rounded-full bg-sky"></span>
+      <span id="toast-msg">Updated</span>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- APPLICATION SCRIPT                                        -->
+  <!-- ========================================================= -->
+  <script>
+    // 1. NUMBERED TIER SHELVES
+    const TIERS = [
+      {
+        id: '1',
+        label: 'TIER 01',
+        title: '#1',
+        labelBg: 'bg-sky/55',
+        badgeClass: 'bg-navy text-sky border-navy'
+      },
+      {
+        id: '2',
+        label: 'TIER 02',
+        title: '#2',
+        labelBg: 'bg-sky/35',
+        badgeClass: 'bg-sky text-navy border-navy'
+      },
+      {
+        id: '3',
+        label: 'TIER 03',
+        title: '#3',
+        labelBg: 'bg-cream',
+        badgeClass: 'bg-cream text-navy border-navy'
+      },
+      {
+        id: '4',
+        label: 'TIER 04',
+        title: '#4',
+        labelBg: 'bg-cream',
+        badgeClass: 'bg-white text-navy border-navy/60'
+      },
+      {
+        id: '5',
+        label: 'TIER 05',
+        title: '#5',
+        labelBg: 'bg-cream-dark/70',
+        badgeClass: 'bg-white text-navy-muted border-navy/40'
+      }
+    ];
+
+    // 2. ALL 16 CONFIRMED LIMITED-EDITION BAGELS (EXCLUDING CORE MENU & NON-BAGEL SCHMEARS)
+    const DEFAULT_DROPS = [
+      {
+        id: 'drop-01',
+        num: '01',
+        name: 'Turkey and Swiss Bagel',
+        season: 'current',
+        badge: 'Current Drop',
+        pairing: 'No separate schmear pairing',
+        dropDate: 'Nov 16–29, 2026',
+        description: 'Current drop ("Here now"). Savory turkey and melty Swiss baked directly into a golden, chewy bagel.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-02',
+        num: '02',
+        name: 'Caprese Bagel',
+        season: 'fall',
+        badge: 'Special Release No. 002',
+        pairing: 'Melted white cheese, pesto, fresh basil & diced tomato',
+        dropDate: 'Nov 8–18, 2026',
+        description: 'OH NO Special Release, no. 002 — topped with melted white cheese, pesto, fresh basil, and diced tomato.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-03',
+        num: '03',
+        name: '"Judy" — Orange Zest Bagel',
+        season: 'fall',
+        badge: 'RubySnap Collab',
+        pairing: 'Paired with Vanilla Bean Cream Cheese',
+        dropDate: 'Nov 1, 2026',
+        description: 'RubySnap collaboration bright orange zest bagel paired with sweet Vanilla Bean Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-04',
+        num: '04',
+        name: 'Stuffed Bacon Egg and Cheese Bagel',
+        season: 'fall',
+        badge: 'Weekend Drop',
+        pairing: "Paired with Zab's Hot Honey Cream Cheese",
+        dropDate: 'Oct 31–Nov 1, 2026',
+        description: "One-weekend-only stuffed bacon, egg, and cheese bagel paired with Zab's Hot Honey Cream Cheese.",
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-05',
+        num: '05',
+        name: 'Chocolate Chip Bagel',
+        season: 'fall',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Whipped Butter',
+        dropDate: 'Oct 29, 2026',
+        description: 'Sweet chocolate chip bagel previewed as an unreleased drop and paired with Whipped Butter.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-06',
+        num: '06',
+        name: 'Pumpkin Spice Bagel',
+        season: 'fall',
+        badge: 'Fall Drop',
+        pairing: 'Paired with Pumpkin Chocolate Chip Cream Cheese',
+        dropDate: 'Oct 18, 2026',
+        description: 'Warm autumn-spiced pumpkin bagel paired with Pumpkin Chocolate Chip Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-07',
+        num: '07',
+        name: 'Oreo Bagel',
+        season: 'fall',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Dirt & Worms Cream Cheese',
+        dropDate: 'Oct 4, 2026',
+        description: 'Cookies-and-cream Oreo bagel paired with playful Dirt & Worms Cream Cheese topped with gummy worms.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-08',
+        num: '08',
+        name: 'Pepperoni Pizza Bagel',
+        season: 'fall',
+        badge: '2-Week Drop',
+        pairing: 'Paired with Pepperoncini "Side Piece" Schmear',
+        dropDate: 'Sep 6–20, 2026',
+        description: 'Tomato sauce, melted cheese, pepperoni, and herbs paired with Pepperoncini "Side Piece" Schmear.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-09',
+        num: '09',
+        name: "Chocolate Graham Cracker Bagel (S'mores)",
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Toasted Marshmallow Schmear',
+        dropDate: 'Aug 23–25, 2026',
+        description: "Rich chocolate graham cracker s'mores bagel paired with fluffy Toasted Marshmallow Schmear.",
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-10',
+        num: '10',
+        name: 'Sugar Bagel',
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Fresh Peach Cream Cheese (Burgess Orchards)',
+        dropDate: 'Aug 9–21, 2026',
+        description: 'Crisp-crusted sweet sugar bagel paired with Fresh Peach Cream Cheese made with Burgess Orchards peaches.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-11',
+        num: '11',
+        name: 'Fruity Pebbles Bagel',
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Pink Strawberry Cream Cheese',
+        dropDate: 'Jul 22, 2026',
+        description: 'Colorful Fruity Pebbles cereal-crusted bagel paired with Pink Strawberry Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-12',
+        num: '12',
+        name: 'Sesame Bagel',
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Paired with "Hot Girl Pickles" Pickle Cream Cheese',
+        dropDate: 'Jul 12–22, 2026',
+        description: 'Toasted sesame seed bagel paired with Good Girl Snacks "Hot Girl Pickles" Pickle Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-13',
+        num: '13',
+        name: 'Blueberry Bagel',
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Tested summer drop',
+        dropDate: 'Jun 24, 2026',
+        description: 'Sweet blueberry-studded limited drop tested in June 2026.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-14',
+        num: '14',
+        name: 'Salted Bagel',
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Caramel Cream Cheese (Redmond Real Salt)',
+        dropDate: 'Jun 14–20, 2026',
+        description: 'Flaky Redmond Real Salt bagel paired with sweet-and-salty Caramel Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-15',
+        num: '15',
+        name: 'Birthday Cake Bagel',
+        season: 'summer',
+        badge: 'Limited Drop',
+        pairing: 'Paired with Vanilla Bean Cream Cheese',
+        dropDate: 'May 31, 2026',
+        description: 'Festive sprinkle-loaded Birthday Cake bagel paired with Vanilla Bean Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      },
+      {
+        id: 'drop-16',
+        num: '16',
+        name: 'Asiago Bagel',
+        season: 'summer',
+        badge: '2-Week Drop',
+        pairing: 'Paired with Pesto Cream Cheese',
+        dropDate: 'May 17–31 & Sep 20, 2026',
+        description: 'Savory baked Asiago cheese crust ("here for 2 weeks only") paired with herbaceous Pesto Cream Cheese.',
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      }
+    ];
+
+    // 3. LOCALSTORAGE STATE MANAGEMENT
+    const STORAGE_KEY = 'ohnobagels_limited_editions_v6';
+    let state = {
+      items: [],
+      placements: {
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': [],
+        unranked: []
+      },
+      selectedItemId: null,
+      activeFilter: 'all',
+      mode: 'tier',
+      battleCount: 0,
+      currentPair: [null, null]
+    };
+
+    function initState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && Array.isArray(parsed.items) && parsed.placements) {
+            state.items = parsed.items;
+            state.placements = {
+              '1': parsed.placements['1'] || [],
+              '2': parsed.placements['2'] || [],
+              '3': parsed.placements['3'] || [],
+              '4': parsed.placements['4'] || [],
+              '5': parsed.placements['5'] || [],
+              unranked: parsed.placements.unranked || []
+            };
+            state.battleCount = parsed.battleCount || 0;
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not read saved state:', e);
+      }
+
+      state.items = JSON.parse(JSON.stringify(DEFAULT_DROPS));
+      state.placements = {
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': [],
+        unranked: state.items.map(item => item.id)
+      };
+      saveState();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          items: state.items,
+          placements: state.placements,
+          battleCount: state.battleCount
+        }));
+      } catch (e) {
+        console.warn('Failed to save state:', e);
+      }
+    }
+
+    function getItemById(id) {
+      return state.items.find(item => item.id === id);
+    }
+
+    function getCategoryPill(item) {
+      if (item.season === 'current') {
+        return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-navy text-sky border border-navy">${item.badge}</span>`;
+      }
+      return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-cream text-navy border border-navy/40">${item.badge}</span>`;
+    }
+
+    // 4. RENDER TIER BOARD & COOLING RACK
+    function renderAll() {
+      renderTierBoard();
+      renderCoolingRack();
+      updateFilterCounts();
+      updateSelectionBanner();
+    }
+
+    function renderTierBoard() {
+      const boardEl = document.getElementById('tier-board');
+      boardEl.innerHTML = TIERS.map(tier => {
+        const itemIds = state.placements[tier.id] || [];
+        const cardsHtml = itemIds.map(id => {
+          const item = getItemById(id);
+          if (!item) return '';
+          return createDropCardHtml(item, true);
+        }).join('');
+
+        return `
+          <div class="border-2 border-navy rounded-2xl shadow-card overflow-hidden bg-cream-light transition-all">
+            <div class="flex flex-col md:flex-row">
+              <!-- Tier Shelf Header -->
+              <div 
+                onclick="handleZoneClick('${tier.id}')"
+                class="md:w-44 lg:w-52 p-4 sm:p-5 border-b-2 md:border-b-0 md:border-r-2 border-navy ${tier.labelBg} flex md:flex-col justify-between items-center md:items-start gap-2 cursor-pointer hover:bg-sky/40 transition"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="font-display font-bold text-[11px] px-2.5 py-0.5 rounded-full border ${tier.badgeClass}">
+                    ${tier.label}
+                  </span>
+                  <span class="font-mono text-[11px] font-bold text-navy/70">${itemIds.length}</span>
+                </div>
+                <h3 class="font-display font-bold text-4xl sm:text-5xl text-navy leading-none md:mt-2">
+                  ${tier.title}
+                </h3>
+              </div>
+
+              <!-- Drop Zone -->
+              <div
+                id="zone-${tier.id}"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                ondrop="handleDrop(event, '${tier.id}')"
+                onclick="handleZoneClick('${tier.id}')"
+                class="flex-1 p-4 min-h-[112px] flex flex-wrap items-stretch gap-3 transition-colors cursor-pointer bg-white/75"
+              >
+                ${cardsHtml || `
+                  <div class="w-full flex items-center justify-center text-xs font-semibold text-navy/55 border-2 border-dashed border-navy/25 rounded-xl py-6 px-4 text-center select-none">
+                    ${state.selectedItemId ? 'Tap here to place selected bagel on this shelf' : 'Drag a bagel here or tap a card below to place'}
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCoolingRack() {
+      const rackEl = document.getElementById('unranked-zone');
+      const unrankedIds = state.placements.unranked || [];
+
+      const filteredItems = unrankedIds
+        .map(id => getItemById(id))
+        .filter(item => {
+          if (!item) return false;
+          if (state.activeFilter === 'all') return true;
+          return item.season === state.activeFilter;
+        });
+
+      if (filteredItems.length === 0) {
+        rackEl.innerHTML = `
+          <div class="col-span-full py-12 text-center border-2 border-dashed border-navy/40 rounded-2xl bg-cream/85">
+            <p class="font-display font-bold text-2xl text-navy uppercase">
+              ${unrankedIds.length === 0 ? 'Every limited drop is ranked.' : 'Nothing in this filter.'}
+            </p>
+            <p class="text-xs font-medium text-navy-muted mt-1.5">
+              ${unrankedIds.length === 0 ? 'Click Bake Ticket in the header to copy or print your ranking.' : 'Switch filter pills above to see your remaining limited drops.'}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      rackEl.innerHTML = filteredItems.map(item => createDropCardHtml(item, false)).join('');
+    }
+
+    function createDropCardHtml(item, isCompact) {
+      const isSelected = state.selectedItemId === item.id;
+      const pillHtml = getCategoryPill(item);
+
+      if (isCompact) {
+        return `
+          <div
+            draggable="true"
+            ondragstart="handleDragStart(event, '${item.id}')"
+            ondragend="handleDragEnd(event)"
+            onclick="handleCardClick(event, '${item.id}')"
+            class="bagel-card rounded-xl p-3.5 w-full sm:w-[235px] flex flex-col justify-between cursor-grab active:cursor-grabbing select-none ${isSelected ? 'selected-drop' : ''}"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="font-mono text-[11px] font-bold text-navy-muted">${item.num}</span>
+                ${pillHtml}
+              </div>
+              <h4 class="font-display font-bold text-base text-navy leading-snug">
+                ${item.name}
+              </h4>
+              ${item.pairing ? `<p class="text-[11px] font-medium text-navy-muted mt-1 line-clamp-1">${item.pairing}</p>` : ''}
+            </div>
+            <div class="mt-3 pt-2 border-t border-navy/15 flex items-center justify-between text-[11px]">
+              <span class="font-semibold text-navy-muted">${item.dropDate}</span>
+              <button onclick="moveItemToZone(event, '${item.id}', 'unranked')" title="Return to Cooling Rack" class="font-bold text-navy hover:text-sky-deep underline underline-offset-2 transition">
+                Remove
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div
+          draggable="true"
+          ondragstart="handleDragStart(event, '${item.id}')"
+          ondragend="handleDragEnd(event)"
+          onclick="handleCardClick(event, '${item.id}')"
+          class="bagel-card rounded-2xl p-5 flex flex-col justify-between cursor-grab active:cursor-grabbing select-none ${isSelected ? 'selected-drop' : ''}"
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-xs font-bold text-navy-muted">${item.num}</span>
+              ${pillHtml}
+            </div>
+            <h4 class="font-display font-bold text-xl text-navy leading-snug">
+              ${item.name}
+            </h4>
+            ${item.pairing ? `
+              <div class="mt-2 inline-block px-2.5 py-1 rounded-lg bg-sky-soft/75 border border-navy/20 text-[11px] font-semibold text-navy">
+                ${item.pairing}
+              </div>
+            ` : ''}
+            <p class="text-xs text-navy-muted mt-2.5 leading-relaxed">
+              ${item.description}
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-navy/15 flex items-center justify-between text-[11px]">
+            <span class="text-navy-muted font-semibold">
+              ${item.dropDate}
+            </span>
+            <span class="font-bold px-2.5 py-0.5 rounded-full ${isSelected ? 'bg-navy text-sky' : 'bg-sky/45 text-navy'}">
+              ${isSelected ? 'Selected ✓' : 'Select →'}
+            </span>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateFilterCounts() {
+      const unrankedItems = (state.placements.unranked || [])
+        .map(id => getItemById(id))
+        .filter(Boolean);
+
+      document.getElementById('count-all').textContent = unrankedItems.length;
+      document.getElementById('count-current').textContent = unrankedItems.filter(i => i.season === 'current').length;
+      document.getElementById('count-fall').textContent = unrankedItems.filter(i => i.season === 'fall').length;
+      document.getElementById('count-summer').textContent = unrankedItems.filter(i => i.season === 'summer').length;
+    }
+
+    function setFilter(filter) {
+      state.activeFilter = filter;
+      document.querySelectorAll('.filter-chip').forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.remove('bg-cream', 'text-navy');
+          btn.classList.add('bg-navy', 'text-cream');
+        } else {
+          btn.classList.remove('bg-navy', 'text-cream');
+          btn.classList.add('bg-cream', 'text-navy');
+        }
+      });
+      renderCoolingRack();
+    }
+
+    // 5. DRAG & DROP + CLICK-TO-ASSIGN INTERACTIONS
+    let draggedItemId = null;
+
+    function handleDragStart(event, itemId) {
+      draggedItemId = itemId;
+      event.dataTransfer.setData('text/plain', itemId);
+      event.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => {
+        if (event.target) event.target.style.opacity = '0.5';
+      }, 0);
+    }
+
+    function handleDragEnd(event) {
+      if (event.target) event.target.style.opacity = '1';
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      event.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(event) {
+      event.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(event, targetZoneId) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drag-over');
+      const itemId = event.dataTransfer.getData('text/plain') || draggedItemId;
+      if (itemId) {
+        placeItemInZone(itemId, targetZoneId);
+      }
+      draggedItemId = null;
+    }
+
+    function handleCardClick(event, itemId) {
+      event.stopPropagation();
+      state.selectedItemId = state.selectedItemId === itemId ? null : itemId;
+      renderAll();
+    }
+
+    function handleZoneClick(targetZoneId) {
+      if (!state.selectedItemId) return;
+      placeItemInZone(state.selectedItemId, targetZoneId);
+    }
+
+    function moveItemToZone(event, itemId, targetZoneId) {
+      event.stopPropagation();
+      placeItemInZone(itemId, targetZoneId);
+    }
+
+    function placeItemInZone(itemId, targetZoneId) {
+      Object.keys(state.placements).forEach(zone => {
+        state.placements[zone] = state.placements[zone].filter(id => id !== itemId);
+      });
+      if (!state.placements[targetZoneId]) {
+        state.placements[targetZoneId] = [];
+      }
+      state.placements[targetZoneId].push(itemId);
+      state.selectedItemId = null;
+      saveState();
+      renderAll();
+    }
+
+    function clearSelection() {
+      state.selectedItemId = null;
+      renderAll();
+    }
+
+    function updateSelectionBanner() {
+      const statusEl = document.getElementById('selection-status');
+      const cancelBtn = document.getElementById('clear-selection-btn');
+      if (state.selectedItemId) {
+        const item = getItemById(state.selectedItemId);
+        statusEl.innerHTML = `Selected <span class="font-bold text-navy underline decoration-sky decoration-2">${item ? item.name : ''}</span> — click any tier row below to drop it in.`;
+        cancelBtn.classList.remove('hidden');
+      } else {
+        statusEl.innerHTML = `Drag any bagel onto a shelf below, or tap a bagel card and click a tier row to drop it in.`;
+        cancelBtn.classList.add('hidden');
+      }
+    }
+
+    // Load a curated sample ranking so users can preview a populated board in one click
+    function loadSampleRanking() {
+      const availableIds = new Set(state.items.map(i => i.id));
+      const sample = {
+        '1': ['drop-01', 'drop-02', 'drop-04'].filter(id => availableIds.has(id)),
+        '2': ['drop-03', 'drop-08', 'drop-14', 'drop-16'].filter(id => availableIds.has(id)),
+        '3': ['drop-06', 'drop-09', 'drop-10', 'drop-15'].filter(id => availableIds.has(id)),
+        '4': ['drop-05', 'drop-07', 'drop-11'].filter(id => availableIds.has(id)),
+        '5': ['drop-12', 'drop-13'].filter(id => availableIds.has(id)),
+        unranked: []
+      };
+
+      const placedSet = new Set([...sample['1'], ...sample['2'], ...sample['3'], ...sample['4'], ...sample['5']]);
+      state.items.forEach(item => {
+        if (!placedSet.has(item.id)) {
+          sample.unranked.push(item.id);
+        }
+      });
+
+      state.placements = sample;
+      state.selectedItemId = null;
+      saveState();
+      renderAll();
+      showToast('Loaded sample limited-drop ranking');
+    }
+
+    // 6. MODE SWITCHING (TIER RACK VS 1v1 BAKE-OFF)
+    function switchMode(mode) {
+      state.mode = mode;
+      const viewTier = document.getElementById('view-tier');
+      const viewBattle = document.getElementById('view-battle');
+      const tabTier = document.getElementById('tab-tier');
+      const tabBattle = document.getElementById('tab-battle');
+
+      if (mode === 'tier') {
+        viewTier.classList.remove('hidden');
+        viewBattle.classList.add('hidden');
+        tabTier.classList.add('bg-sky', 'text-navy');
+        tabTier.classList.remove('text-cream/80', 'hover:text-cream');
+        tabBattle.classList.remove('bg-sky', 'text-navy');
+        tabBattle.classList.add('text-cream/80', 'hover:text-cream');
+        renderAll();
+      } else {
+        viewTier.classList.add('hidden');
+        viewBattle.classList.remove('hidden');
+        tabBattle.classList.add('bg-sky', 'text-navy');
+        tabBattle.classList.remove('text-cream/80', 'hover:text-cream');
+        tabTier.classList.remove('bg-sky', 'text-navy');
+        tabTier.classList.add('text-cream/80', 'hover:text-cream');
+        if (!state.currentPair[0] || !state.currentPair[1]) {
+          nextBattlePair();
+        }
+        renderBattleLeaderboard();
+      }
+    }
+
+    // 7. 1v1 HEAD-TO-HEAD "BAKE-OFF" LOGIC
+    function nextBattlePair() {
+      if (state.items.length < 2) return;
+      const sortedByMatches = [...state.items].sort((a, b) => (a.wins + a.losses) - (b.wins + b.losses));
+      const pool = sortedByMatches.slice(0, Math.max(4, Math.ceil(state.items.length * 0.7)));
+      
+      const first = pool[Math.floor(Math.random() * pool.length)];
+      let second = state.items[Math.floor(Math.random() * state.items.length)];
+      let guard = 0;
+      while (second.id === first.id && guard < 25) {
+        second = state.items[Math.floor(Math.random() * state.items.length)];
+        guard++;
+      }
+
+      state.currentPair = [first.id, second.id];
+      renderBattleCards();
+    }
+
+    function renderBattleCards() {
+      const leftItem = getItemById(state.currentPair[0]);
+      const rightItem = getItemById(state.currentPair[1]);
+      if (!leftItem || !rightItem) return;
+
+      document.getElementById('battle-count').textContent = state.battleCount;
+      document.getElementById('contender-left').innerHTML = buildContenderHtml(leftItem);
+      document.getElementById('contender-right').innerHTML = buildContenderHtml(rightItem);
+
+      ['contender-left', 'contender-right'].forEach(elId => {
+        const el = document.getElementById(elId);
+        el.classList.remove('animate-gentle-fade');
+        void el.offsetWidth;
+        el.classList.add('animate-gentle-fade');
+      });
+    }
+
+    function buildContenderHtml(item) {
+      const pillHtml = getCategoryPill(item);
+      return `
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <span class="font-mono text-xs font-bold text-navy-muted">${item.num} · ${item.dropDate}</span>
+            ${pillHtml}
+          </div>
+          <h3 class="font-display font-bold text-2xl sm:text-3xl text-navy leading-tight">
+            ${item.name}
+          </h3>
+          ${item.pairing ? `
+            <div class="mt-2.5 inline-block px-3 py-1 rounded-lg bg-sky-soft/80 border border-navy/20 text-xs font-semibold text-navy">
+              ${item.pairing}
+            </div>
+          ` : ''}
+          <p class="text-sm text-navy/85 mt-3 leading-relaxed">
+            ${item.description}
+          </p>
+        </div>
+        <div class="mt-8 pt-4 border-t border-navy/20 flex items-center justify-between">
+          <span class="font-mono text-[11px] font-bold text-navy-muted">
+            ${item.wins}W – ${item.losses}L · ${Math.round(item.elo)}
+          </span>
+          <span class="px-4 py-1.5 rounded-full bg-navy text-cream group-hover:bg-cream group-hover:text-navy text-xs font-bold transition">
+            Pick this →
+          </span>
+        </div>
+      `;
+    }
+
+    function voteBattle(side) {
+      const leftItem = getItemById(state.currentPair[0]);
+      const rightItem = getItemById(state.currentPair[1]);
+      if (!leftItem || !rightItem) return;
+
+      const winner = side === 'left' ? leftItem : rightItem;
+      const loser = side === 'left' ? rightItem : leftItem;
+
+      const K = 32;
+      const expectedWin = 1 / (1 + Math.pow(10, (loser.elo - winner.elo) / 400));
+      const expectedLoss = 1 / (1 + Math.pow(10, (winner.elo - loser.elo) / 400));
+
+      winner.elo = Math.round(winner.elo + K * (1 - expectedWin));
+      loser.elo = Math.round(loser.elo + K * (0 - expectedLoss));
+      winner.wins += 1;
+      loser.losses += 1;
+
+      state.battleCount += 1;
+      saveState();
+      renderBattleLeaderboard();
+      nextBattlePair();
+    }
+
+    function renderBattleLeaderboard() {
+      const board = document.getElementById('battle-leaderboard');
+      const ranked = [...state.items].sort((a, b) => b.elo - a.elo);
+
+      board.innerHTML = ranked.map((item, idx) => {
+        const rankNum = idx + 1 < 10 ? `0${idx + 1}` : `${idx + 1}`;
+        return `
+          <div class="bg-navy border border-sky/25 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-mono text-xs font-bold ${idx === 0 ? 'text-sky' : 'text-cream/65'} shrink-0">
+                ${rankNum}
+              </span>
+              <div class="truncate">
+                <div class="font-display font-bold text-base text-cream truncate">${item.name}</div>
+                <div class="text-[11px] text-cream/70">${item.wins}W – ${item.losses}L · ${item.badge}</div>
+              </div>
+            </div>
+            <div class="font-mono text-xs font-bold text-sky shrink-0">
+              ${item.elo}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function applyBakeOffToTiers() {
+      const sorted = [...state.items].sort((a, b) => b.elo - a.elo);
+      const total = sorted.length;
+
+      state.placements = { '1': [], '2': [], '3': [], '4': [], '5': [], unranked: [] };
+
+      sorted.forEach((item, index) => {
+        const percentile = index / total;
+        if (percentile < 0.2) {
+          state.placements['1'].push(item.id);
+        } else if (percentile < 0.45) {
+          state.placements['2'].push(item.id);
+        } else if (percentile < 0.72) {
+          state.placements['3'].push(item.id);
+        } else if (percentile < 0.9) {
+          state.placements['4'].push(item.id);
+        } else {
+          state.placements['5'].push(item.id);
+        }
+      });
+
+      saveState();
+      switchMode('tier');
+      showToast('Applied Bake-Off standings to Tier Rack');
+    }
+
+    function resetBattleStats() {
+      state.items.forEach(item => {
+        item.elo = 1500;
+        item.wins = 0;
+        item.losses = 0;
+      });
+      state.battleCount = 0;
+      saveState();
+      renderBattleCards();
+      renderBattleLeaderboard();
+      showToast('Elo ratings reset to 1500');
+    }
+
+    // 8. ADD PAST DROP MODAL
+    function openAddModal() {
+      const modal = document.getElementById('add-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('drop-name').focus();
+    }
+
+    function closeAddModal() {
+      const modal = document.getElementById('add-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleAddDrop(event) {
+      event.preventDefault();
+      const name = document.getElementById('drop-name').value.trim();
+      const season = document.getElementById('drop-category').value;
+      const dropDate = document.getElementById('drop-date').value.trim() || 'Limited Drop';
+      const description = document.getElementById('drop-desc').value.trim();
+
+      if (!name || !description) return;
+
+      const nextIndex = state.items.length + 1;
+      const numStr = nextIndex < 10 ? `0${nextIndex}` : `${nextIndex}`;
+      const badgeLabel = season === 'current' ? 'Current Drop' : 'Limited Drop';
+
+      const newDrop = {
+        id: 'custom-' + Date.now(),
+        num: numStr,
+        name,
+        season,
+        badge: badgeLabel,
+        pairing: '',
+        dropDate,
+        description,
+        elo: 1500,
+        wins: 0,
+        losses: 0
+      };
+
+      state.items.push(newDrop);
+      state.placements.unranked.unshift(newDrop.id);
+      saveState();
+
+      document.getElementById('add-drop-form').reset();
+      closeAddModal();
+      renderAll();
+      showToast(`Added "${name}" to cooling rack`);
+    }
+
+    // 9. BAKE TICKET RECEIPT MODAL
+    function openReceiptModal() {
+      const now = new Date();
+      document.getElementById('receipt-timestamp').textContent = now.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      const contentEl = document.getElementById('receipt-content');
+      let totalRanked = 0;
+
+      const sectionsHtml = TIERS.map(tier => {
+        const ids = state.placements[tier.id] || [];
+        totalRanked += ids.length;
+        if (ids.length === 0) return '';
+
+        const lines = ids.map((id, i) => {
+          const item = getItemById(id);
+          if (!item) return '';
+          return `
+            <div class="flex items-baseline justify-between gap-3 py-1 border-b border-navy/15 last:border-b-0">
+              <span class="text-navy font-semibold">${i + 1}. ${item.name}</span>
+              <span class="font-mono text-[11px] text-navy-muted shrink-0">${item.num}</span>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-display font-bold text-sm text-navy">${tier.label} (${tier.title})</span>
+              <span class="font-mono text-[10px] font-bold text-navy-muted">${ids.length}</span>
+            </div>
+            <div class="bg-white rounded-xl px-3.5 py-2 border border-navy/30">
+              ${lines}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (totalRanked === 0) {
+        contentEl.innerHTML = `
+          <div class="py-8 text-center text-navy-muted">
+            <p class="font-display font-bold text-xl text-navy uppercase">Your shelves are empty.</p>
+            <p class="mt-1">Place at least one bagel onto a shelf to generate your Bake Ticket.</p>
+          </div>
+        `;
+      } else {
+        contentEl.innerHTML = sectionsHtml + `
+          <div class="pt-2 flex justify-between text-xs font-bold text-navy">
+            <span>Total bagels ranked</span>
+            <span class="font-mono">${totalRanked} / ${state.items.length}</span>
+          </div>
+        `;
+      }
+
+      const modal = document.getElementById('receipt-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeReceiptModal() {
+      const modal = document.getElementById('receipt-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function copyReceiptText() {
+      let lines = [
+        'OH NO! BAGELS — Limited Drop Tier Ranking',
+        '3156 N 1200 W, Suite 106 · Lehi, UT 84043',
+        'The oven is on. Here now. Gone soon.',
+        '----------------------------------------'
+      ];
+
+      let anyRanked = false;
+      TIERS.forEach(tier => {
+        const ids = state.placements[tier.id] || [];
+        if (ids.length > 0) {
+          anyRanked = true;
+          lines.push(`\n[${tier.label} · ${tier.title}]`);
+          ids.forEach((id, idx) => {
+            const item = getItemById(id);
+            if (item) lines.push(`  ${idx + 1}. ${item.name}`);
+          });
+        }
+      });
+
+      if (!anyRanked) {
+        lines.push('\nNo bagels ranked yet.');
+      }
+
+      lines.push('\n----------------------------------------');
+      lines.push('ohnobagels.com');
+
+      const textToCopy = lines.join('\n');
+
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = textToCopy;
+      tempTextArea.style.position = 'fixed';
+      tempTextArea.style.left = '-9999px';
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Bake Ticket copied to clipboard');
+      } catch (err) {
+        showToast('Could not copy automatically');
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    // 10. RESET CONFIRMATION DIALOG
+    function confirmReset() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function executeReset() {
+      state.placements = {
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': [],
+        unranked: state.items.map(item => item.id)
+      };
+      state.selectedItemId = null;
+      saveState();
+      closeResetModal();
+      renderAll();
+      showToast('Returned all bagels to cooling rack');
+    }
+
+    // 11. TOAST HELPER
+    let toastTimeout = null;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = message;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2600);
+    }
+
+    // Keyboard shortcuts for 1v1 Bake-Off (1 / 2 or Left / Right arrows)
+    document.addEventListener('keydown', (e) => {
+      if (state.mode !== 'battle') return;
+      const activeTag = document.activeElement ? document.activeElement.tagName : '';
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT') return;
+      if (!document.getElementById('add-modal').classList.contains('hidden')) return;
+
+      if (e.key === '1' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        voteBattle('left');
+      } else if (e.key === '2' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        voteBattle('right');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initState();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
