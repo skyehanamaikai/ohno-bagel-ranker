@@ -802,6 +802,27 @@
     }
 
     // 4. COMPACT DRAG-AND-REORDER RANK LIST
+    let touchDragState = {
+      activeId: null,
+      overId: null,
+      cloneEl: null,
+      sourceRow: null
+    };
+
+    function cleanupTouchDrag() {
+      if (touchDragState.cloneEl && touchDragState.cloneEl.parentNode) {
+        touchDragState.cloneEl.parentNode.removeChild(touchDragState.cloneEl);
+      }
+      if (touchDragState.sourceRow) {
+        touchDragState.sourceRow.classList.remove('opacity-40');
+      }
+      document.querySelectorAll('#rank-list .drag-over').forEach(el => el.classList.remove('drag-over'));
+      touchDragState.activeId = null;
+      touchDragState.overId = null;
+      touchDragState.cloneEl = null;
+      touchDragState.sourceRow = null;
+    }
+
     function renderRankList() {
       const container = document.getElementById('rank-list');
       if (!container) return;
@@ -861,7 +882,7 @@
 
         row.innerHTML = `
           <div class="flex items-center gap-3 min-w-0">
-            <span class="text-navy/40 font-mono text-sm leading-none shrink-0" title="Drag to reorder">⋮⋮</span>
+            <span class="drag-handle touch-none px-1.5 py-2 -ml-1.5 text-navy/50 hover:text-navy font-mono text-base leading-none shrink-0 cursor-grab" title="Drag to reorder">⋮⋮</span>
             <span class="w-8 h-8 rounded-full border ${badgeClass} font-display font-bold text-xs flex items-center justify-center shrink-0">
               #${rankNum}
             </span>
@@ -884,6 +905,76 @@
             </button>
           </div>
         `;
+
+        // Mobile Touch Drag-and-Drop on the ⋮⋮ handle
+        const handle = row.querySelector('.drag-handle');
+        handle.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          e.preventDefault();
+          cleanupTouchDrag();
+
+          const touch = e.touches[0];
+          const rect = row.getBoundingClientRect();
+
+          const clone = row.cloneNode(true);
+          clone.style.position = 'fixed';
+          clone.style.left = rect.left + 'px';
+          clone.style.top = (touch.clientY - rect.height / 2) + 'px';
+          clone.style.width = rect.width + 'px';
+          clone.style.zIndex = '100';
+          clone.style.pointerEvents = 'none';
+          clone.style.opacity = '0.95';
+          clone.style.boxShadow = '0 14px 28px rgba(24, 52, 75, 0.25)';
+          clone.style.transform = 'scale(1.02)';
+          document.body.appendChild(clone);
+
+          row.classList.add('opacity-40');
+          touchDragState.activeId = item.id;
+          touchDragState.overId = item.id;
+          touchDragState.cloneEl = clone;
+          touchDragState.sourceRow = row;
+        }, { passive: false });
+
+        handle.addEventListener('touchmove', (e) => {
+          if (!touchDragState.activeId || e.touches.length !== 1) return;
+          e.preventDefault();
+
+          const touch = e.touches[0];
+          if (touchDragState.cloneEl) {
+            const h = touchDragState.cloneEl.offsetHeight || 48;
+            touchDragState.cloneEl.style.top = (touch.clientY - h / 2) + 'px';
+          }
+
+          // Auto-scroll near top or bottom edges of phone screen
+          if (touch.clientY < 90) {
+            window.scrollBy(0, -10);
+          } else if (touch.clientY > window.innerHeight - 90) {
+            window.scrollBy(0, 10);
+          }
+
+          const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+          const targetRow = targetEl ? targetEl.closest('#rank-list [data-id]') : null;
+
+          document.querySelectorAll('#rank-list .drag-over').forEach(el => el.classList.remove('drag-over'));
+          if (targetRow && targetRow.dataset.id !== touchDragState.activeId) {
+            targetRow.classList.add('drag-over');
+            touchDragState.overId = targetRow.dataset.id;
+          } else {
+            touchDragState.overId = null;
+          }
+        }, { passive: false });
+
+        handle.addEventListener('touchend', () => {
+          if (!touchDragState.activeId) return;
+          const fromId = touchDragState.activeId;
+          const toId = touchDragState.overId;
+          cleanupTouchDrag();
+          if (fromId && toId && fromId !== toId) {
+            reorderItems(fromId, toId);
+          }
+        });
+
+        handle.addEventListener('touchcancel', cleanupTouchDrag);
 
         container.appendChild(row);
       });
