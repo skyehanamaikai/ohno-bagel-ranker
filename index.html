@@ -202,7 +202,7 @@
           <!-- Mode Switcher Segmented Pill -->
           <div class="inline-flex rounded-full bg-navy-deep p-1 border border-sky/30">
             <button id="tab-tier" onclick="switchMode('tier')" class="px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition bg-sky text-navy">
-              Tier Rack
+              Rank List
             </button>
             <button id="tab-battle" onclick="switchMode('battle')" class="px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition text-cream/80 hover:text-cream">
               1v1 Bake-Off
@@ -225,91 +225,48 @@
   </header>
 
   <!-- MAIN CONTENT AREA -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
     <!-- ========================================================= -->
-    <!-- MODE 1: INTERACTIVE TIER RACK BOARD                       -->
+    <!-- MODE 1: COMPACT DRAG-AND-REORDER RANKING LIST             -->
     <!-- ========================================================= -->
-    <section id="view-tier" class="space-y-8">
+    <section id="view-tier" class="space-y-6">
       
       <!-- Editorial Hero Intro + Quick Actions -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b-2 border-navy/15">
-        <div class="max-w-xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy border border-navy text-xs font-bold mb-3">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b-2 border-navy/15">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy border border-navy text-xs font-bold mb-2.5">
             <span class="font-script text-base leading-none">Limited Drops</span>
             <span>·</span>
-            <span>Lehi, Utah</span>
+            <span>16 Flavors</span>
           </div>
           <h2 class="font-display font-bold text-4xl sm:text-5xl tracking-tight text-navy uppercase leading-[1.02]">
             Rank the bake.
           </h2>
-          <p id="selection-status" class="text-sm text-navy-muted mt-3 leading-relaxed">
-            Drag any bagel onto a shelf below, or tap a bagel card and click a tier row to drop it in.
+          <p class="text-xs sm:text-sm text-navy-muted mt-2">
+            Drag tiles up or down to set your #1 to #16 order—or use the arrows to nudge.
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-          <button id="clear-selection-btn" onclick="clearSelection()" class="hidden px-4 py-2 rounded-full text-xs font-bold bg-sky text-navy border-2 border-navy">
-            Cancel selection
-          </button>
-          <button onclick="loadSampleRanking()" class="pill-btn-sky px-4 py-2 text-xs font-bold">
-            Load Sample Ranking
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button onclick="shuffleOrder()" class="pill-btn-sky px-4 py-2 text-xs font-bold">
+            Shuffle
           </button>
           <button onclick="confirmReset()" class="pill-btn-cream px-4 py-2 text-xs font-bold">
-            Reset Rack
+            Reset Order
           </button>
         </div>
       </div>
 
-      <!-- TIER SHELVES CONTAINER (S, A, B, C, D) -->
-      <div id="tier-board" class="space-y-3.5">
-        <!-- Rendered dynamically by JS -->
-      </div>
+      <!-- SINGLE-SCREEN COMPACT RANKING STACK -->
+      <div class="bg-sky border-2 border-navy rounded-3xl p-4 sm:p-6 shadow-soft">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <span class="font-script text-2xl text-navy leading-none">Top to bottom</span>
+          <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-navy/80">Drag or tap ↑ ↓</span>
+        </div>
 
-      <!-- THE COOLING RACK (UNRANKED TRAY STYLED IN #7EB5E6 SKY BLUE) -->
-      <div class="pt-4">
-        <div class="bg-sky border-2 border-navy rounded-3xl p-6 sm:p-8 shadow-soft">
-          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b-2 border-navy/20">
-            <div>
-              <span class="font-script text-2xl sm:text-3xl text-navy block leading-none mb-1">
-                Here now. Gone soon.
-              </span>
-              <h3 class="font-display font-bold text-3xl sm:text-4xl text-navy uppercase tracking-tight">
-                The cooling rack.
-              </h3>
-              <p class="text-xs sm:text-sm text-navy/85 mt-1.5 font-medium">
-                Tap any bagel card to select it, then tap a tier shelf above—or drag and drop directly.
-              </p>
-            </div>
-
-            <!-- Category Filter Pills -->
-            <div id="filter-chips" class="flex flex-wrap gap-2">
-              <button onclick="setFilter('all')" data-filter="all" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-navy text-cream transition">
-                All Drops (<span id="count-all">16</span>)
-              </button>
-              <button onclick="setFilter('current')" data-filter="current" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-cream text-navy hover:bg-white transition">
-                Current Drop (<span id="count-current">1</span>)
-              </button>
-              <button onclick="setFilter('fall')" data-filter="fall" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-cream text-navy hover:bg-white transition">
-                Fall / Holiday (<span id="count-fall">7</span>)
-              </button>
-              <button onclick="setFilter('summer')" data-filter="summer" class="filter-chip px-4 py-1.5 rounded-full text-xs font-bold border-2 border-navy bg-cream text-navy hover:bg-white transition">
-                Spring / Summer (<span id="count-summer">8</span>)
-              </button>
-            </div>
-          </div>
-
-          <!-- Unranked Drop Zone -->
-          <div 
-            id="unranked-zone"
-            ondragover="handleDragOver(event)"
-            ondragleave="handleDragLeave(event)"
-            ondrop="handleDrop(event, 'unranked')"
-            onclick="handleZoneClick('unranked')"
-            class="mt-6 min-h-[160px] rounded-2xl transition-colors grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-          >
-            <!-- Unranked Cards Injected Here -->
-          </div>
+        <div id="rank-list" class="space-y-2">
+          <!-- Compact bagel name tiles rendered dynamically -->
         </div>
       </div>
     </section>
@@ -318,83 +275,65 @@
     <!-- MODE 2: MIDNIGHT NAVY 1v1 HEAD-TO-HEAD "BAKE-OFF"         -->
     <!-- ========================================================= -->
     <section id="view-battle" class="hidden space-y-8">
-      <div class="bg-navy text-cream border-2 border-navy-deep rounded-3xl p-6 sm:p-10 shadow-elevated">
+      <div class="bg-navy text-cream border-2 border-navy-deep rounded-3xl p-6 sm:p-8 shadow-elevated">
         
         <!-- Header & Controls -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-sky/25">
-          <div class="max-w-xl">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy text-xs font-bold mb-3">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-sky/25">
+          <div class="max-w-md">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy text-xs font-bold mb-2.5">
               <span class="font-script text-base leading-none">Head-to-Head</span>
               <span>·</span>
               <span>Keys 1 / 2 or ← / →</span>
             </div>
-            <h2 class="font-display font-bold text-4xl sm:text-5xl text-cream uppercase tracking-tight leading-[1.04]">
+            <h2 class="font-display font-bold text-3xl sm:text-4xl text-cream uppercase tracking-tight leading-[1.04]">
               1v1 Bake-Off.
             </h2>
-            <p class="text-sm text-cream/80 mt-3 leading-relaxed">
-              Pick the bagel you'd grab first out of the oven. Every vote updates live Elo ratings so you can auto-populate your Tier Rack.
+            <p class="text-xs sm:text-sm text-cream/80 mt-2 leading-relaxed">
+              Pick your favorite in quick matchups, then apply the results straight to your Rank List.
             </p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="bg-navy-deep border border-sky/40 rounded-2xl px-4 py-2 text-center">
-              <div class="text-[11px] text-sky font-bold uppercase tracking-wider">Rounds</div>
-              <div id="battle-count" class="font-display text-2xl font-bold text-cream">0</div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="bg-navy-deep border border-sky/40 rounded-2xl px-3.5 py-1.5 text-center">
+              <div class="text-[10px] text-sky font-bold uppercase tracking-wider">Rounds</div>
+              <div id="battle-count" class="font-display text-xl font-bold text-cream">0</div>
             </div>
-            <button onclick="applyBakeOffToTiers()" class="pill-btn-sky px-5 py-3 text-xs font-bold flex items-center gap-2">
-              <span>Apply Bake-Off to Tier Rack</span>
+            <button onclick="applyBakeOffToTiers()" class="pill-btn-sky px-4 py-2.5 text-xs font-bold">
+              Apply to Rank List
             </button>
           </div>
         </div>
 
-        <!-- 1v1 Arena + Live Elo Leaderboard -->
-        <div class="py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          <!-- Left 7 Cols: Side-by-Side Contenders -->
-          <div class="lg:col-span-7">
-            <div class="grid grid-cols-1 sm:grid-cols-11 gap-4 items-stretch">
-              
-              <!-- Left Contender -->
-              <div id="contender-left" onclick="voteBattle('left')" class="sm:col-span-5 bg-cream text-navy border-2 border-sky rounded-2xl p-6 cursor-pointer flex flex-col justify-between group hover:bg-sky transition">
-                <!-- Populated by JS -->
-              </div>
-
-              <!-- VS Badge -->
-              <div class="sm:col-span-1 flex items-center justify-center">
-                <span class="w-10 h-10 rounded-full bg-sky border-2 border-cream text-navy font-script text-xl flex items-center justify-center shadow-xs">
-                  vs
-                </span>
-              </div>
-
-              <!-- Right Contender -->
-              <div id="contender-right" onclick="voteBattle('right')" class="sm:col-span-5 bg-cream text-navy border-2 border-sky rounded-2xl p-6 cursor-pointer flex flex-col justify-between group hover:bg-sky transition">
-                <!-- Populated by JS -->
-              </div>
-
+        <!-- 1v1 Arena -->
+        <div class="pt-6">
+          <div class="grid grid-cols-1 sm:grid-cols-11 gap-4 items-stretch">
+            <!-- Left Contender -->
+            <div id="contender-left" onclick="voteBattle('left')" class="sm:col-span-5 bg-cream text-navy border-2 border-sky rounded-2xl p-6 cursor-pointer flex flex-col justify-between group hover:bg-sky transition">
+              <!-- Populated by JS -->
             </div>
 
-            <!-- Skip / Reset Controls -->
-            <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <button onclick="nextBattlePair()" class="pill-btn-cream px-5 py-2 text-xs font-bold">
-                Skip pairing
-              </button>
-              <button onclick="resetBattleStats()" class="px-4 py-2 text-xs font-semibold text-cream/75 hover:text-sky transition">
-                Reset Elo scores
-              </button>
+            <!-- VS Badge -->
+            <div class="sm:col-span-1 flex items-center justify-center">
+              <span class="w-10 h-10 rounded-full bg-sky border-2 border-cream text-navy font-script text-xl flex items-center justify-center shadow-xs">
+                vs
+              </span>
+            </div>
+
+            <!-- Right Contender -->
+            <div id="contender-right" onclick="voteBattle('right')" class="sm:col-span-5 bg-cream text-navy border-2 border-sky rounded-2xl p-6 cursor-pointer flex flex-col justify-between group hover:bg-sky transition">
+              <!-- Populated by JS -->
             </div>
           </div>
 
-          <!-- Right 5 Cols: Real-Time Elo Standings -->
-          <div class="lg:col-span-5 bg-navy-deep border border-sky/30 rounded-2xl p-5">
-            <div class="flex items-baseline justify-between mb-4 pb-3 border-b border-sky/20">
-              <h3 class="font-display font-bold text-xl text-cream uppercase">Live Elo Standings</h3>
-              <span class="font-script text-lg text-sky">Top of the batch</span>
-            </div>
-            <div id="battle-leaderboard" class="space-y-2 max-h-[430px] overflow-y-auto pr-1">
-              <!-- Leaderboard rows injected by JS -->
-            </div>
+          <!-- Skip / Reset Controls -->
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button onclick="nextBattlePair()" class="pill-btn-cream px-5 py-2 text-xs font-bold">
+              Skip pairing
+            </button>
+            <button onclick="resetBattleStats()" class="px-4 py-2 text-xs font-semibold text-cream/75 hover:text-sky transition">
+              Reset Elo scores
+            </button>
           </div>
-
         </div>
 
       </div>
@@ -517,18 +456,37 @@
   <!-- ========================================================= -->
   <div id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/60 backdrop-blur-xs p-4">
     <div class="bg-cream border-2 border-navy rounded-3xl shadow-elevated max-w-sm w-full p-6 text-navy animate-gentle-fade">
-      <h3 class="font-display font-bold text-2xl uppercase">Reset the rack?</h3>
+      <h3 class="font-display font-bold text-2xl uppercase">Reset the list?</h3>
       <p class="text-xs text-navy-muted mt-2 leading-relaxed">
-        This will clear all shelves and move every limited-edition bagel back onto the cooling rack.
+        This will restore the default order of all limited-edition bagels.
       </p>
       <div class="mt-5 flex items-center justify-end gap-2.5">
         <button onclick="closeResetModal()" class="pill-btn-cream px-4 py-2 text-xs font-bold">
           Cancel
         </button>
         <button onclick="executeReset()" class="pill-btn-navy px-4 py-2 text-xs font-bold">
-          Reset all
+          Reset order
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 4: BAGEL QUICK DETAILS POPOVER MODAL                -->
+  <!-- ========================================================= -->
+  <div id="detail-modal" onclick="closeDetailModal()" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/60 backdrop-blur-xs p-4">
+    <div onclick="event.stopPropagation()" class="bg-cream border-2 border-navy rounded-3xl shadow-elevated max-w-sm w-full p-6 text-navy animate-gentle-fade">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span id="detail-date" class="inline-block px-2.5 py-0.5 rounded-full bg-sky text-navy border border-navy text-[10px] font-display font-bold uppercase tracking-wider"></span>
+          <h3 id="detail-name" class="font-display font-bold text-2xl text-navy mt-2 leading-tight"></h3>
+        </div>
+        <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full border-2 border-navy bg-white hover:bg-sky text-navy text-xs font-bold flex items-center justify-center shrink-0 transition">
+          ✕
+        </button>
+      </div>
+      <div id="detail-pairing" class="mt-3 px-3 py-1.5 rounded-xl bg-sky-soft/80 border border-navy/20 text-xs font-semibold text-navy"></div>
+      <p id="detail-desc" class="text-xs text-navy-muted mt-3 leading-relaxed"></p>
     </div>
   </div>
 
@@ -546,46 +504,7 @@
   <!-- APPLICATION SCRIPT                                        -->
   <!-- ========================================================= -->
   <script>
-    // 1. NUMBERED TIER SHELVES
-    const TIERS = [
-      {
-        id: '1',
-        label: 'TIER 01',
-        title: '#1',
-        labelBg: 'bg-sky/55',
-        badgeClass: 'bg-navy text-sky border-navy'
-      },
-      {
-        id: '2',
-        label: 'TIER 02',
-        title: '#2',
-        labelBg: 'bg-sky/35',
-        badgeClass: 'bg-sky text-navy border-navy'
-      },
-      {
-        id: '3',
-        label: 'TIER 03',
-        title: '#3',
-        labelBg: 'bg-cream',
-        badgeClass: 'bg-cream text-navy border-navy'
-      },
-      {
-        id: '4',
-        label: 'TIER 04',
-        title: '#4',
-        labelBg: 'bg-cream',
-        badgeClass: 'bg-white text-navy border-navy/60'
-      },
-      {
-        id: '5',
-        label: 'TIER 05',
-        title: '#5',
-        labelBg: 'bg-cream-dark/70',
-        badgeClass: 'bg-white text-navy-muted border-navy/40'
-      }
-    ];
-
-    // 2. ALL 16 CONFIRMED LIMITED-EDITION BAGELS (EXCLUDING CORE MENU & NON-BAGEL SCHMEARS)
+    // 1. ALL 16 CONFIRMED LIMITED-EDITION BAGELS
     const DEFAULT_DROPS = [
       {
         id: 'drop-01',
@@ -797,23 +716,15 @@
       }
     ];
 
-    // 3. LOCALSTORAGE STATE MANAGEMENT
-    const STORAGE_KEY = 'ohnobagels_limited_editions_v6';
+    // 2. LOCALSTORAGE STATE MANAGEMENT (ORDERED LIST)
+    const STORAGE_KEY = 'ohnobagels_ordered_list_v7';
     let state = {
-      items: [],
-      placements: {
-        '1': [],
-        '2': [],
-        '3': [],
-        '4': [],
-        '5': [],
-        unranked: []
-      },
-      selectedItemId: null,
-      activeFilter: 'all',
       mode: 'tier',
-      battleCount: 0,
-      currentPair: [null, null]
+      items: [],
+      order: [],
+      draggedId: null,
+      battlePair: [null, null],
+      battleCount: 0
     };
 
     function initState() {
@@ -821,451 +732,254 @@
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed && Array.isArray(parsed.items) && parsed.placements) {
+          if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
             state.items = parsed.items;
-            state.placements = {
-              '1': parsed.placements['1'] || [],
-              '2': parsed.placements['2'] || [],
-              '3': parsed.placements['3'] || [],
-              '4': parsed.placements['4'] || [],
-              '5': parsed.placements['5'] || [],
-              unranked: parsed.placements.unranked || []
-            };
-            state.battleCount = parsed.battleCount || 0;
+            const validIds = new Set(state.items.map(i => i.id));
+            const savedOrder = Array.isArray(parsed.order) ? parsed.order.filter(id => validIds.has(id)) : [];
+            const missingIds = state.items.map(i => i.id).filter(id => !savedOrder.includes(id));
+            state.order = [...savedOrder, ...missingIds];
+            state.battleCount = typeof parsed.battleCount === 'number' ? parsed.battleCount : 0;
             return;
           }
         }
       } catch (e) {
         console.warn('Could not read saved state:', e);
       }
-
       state.items = JSON.parse(JSON.stringify(DEFAULT_DROPS));
-      state.placements = {
-        '1': [],
-        '2': [],
-        '3': [],
-        '4': [],
-        '5': [],
-        unranked: state.items.map(item => item.id)
-      };
-      saveState();
+      state.order = state.items.map(i => i.id);
+      state.battleCount = 0;
     }
 
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           items: state.items,
-          placements: state.placements,
+          order: state.order,
           battleCount: state.battleCount
         }));
       } catch (e) {
-        console.warn('Failed to save state:', e);
+        console.warn('Could not save state:', e);
       }
     }
 
-    function getItemById(id) {
-      return state.items.find(item => item.id === id);
-    }
-
-    function getCategoryPill(item) {
-      if (item.season === 'current') {
-        return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-navy text-sky border border-navy">${item.badge}</span>`;
-      }
-      return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-cream text-navy border border-navy/40">${item.badge}</span>`;
-    }
-
-    // 4. RENDER TIER BOARD & COOLING RACK
-    function renderAll() {
-      renderTierBoard();
-      renderCoolingRack();
-      updateFilterCounts();
-      updateSelectionBanner();
-    }
-
-    function renderTierBoard() {
-      const boardEl = document.getElementById('tier-board');
-      boardEl.innerHTML = TIERS.map(tier => {
-        const itemIds = state.placements[tier.id] || [];
-        const cardsHtml = itemIds.map(id => {
-          const item = getItemById(id);
-          if (!item) return '';
-          return createDropCardHtml(item, true);
-        }).join('');
-
-        return `
-          <div class="border-2 border-navy rounded-2xl shadow-card overflow-hidden bg-cream-light transition-all">
-            <div class="flex flex-col md:flex-row">
-              <!-- Tier Shelf Header -->
-              <div 
-                onclick="handleZoneClick('${tier.id}')"
-                class="md:w-44 lg:w-52 p-4 sm:p-5 border-b-2 md:border-b-0 md:border-r-2 border-navy ${tier.labelBg} flex md:flex-col justify-between items-center md:items-start gap-2 cursor-pointer hover:bg-sky/40 transition"
-              >
-                <div class="flex items-center gap-2">
-                  <span class="font-display font-bold text-[11px] px-2.5 py-0.5 rounded-full border ${tier.badgeClass}">
-                    ${tier.label}
-                  </span>
-                  <span class="font-mono text-[11px] font-bold text-navy/70">${itemIds.length}</span>
-                </div>
-                <h3 class="font-display font-bold text-4xl sm:text-5xl text-navy leading-none md:mt-2">
-                  ${tier.title}
-                </h3>
-              </div>
-
-              <!-- Drop Zone -->
-              <div
-                id="zone-${tier.id}"
-                ondragover="handleDragOver(event)"
-                ondragleave="handleDragLeave(event)"
-                ondrop="handleDrop(event, '${tier.id}')"
-                onclick="handleZoneClick('${tier.id}')"
-                class="flex-1 p-4 min-h-[112px] flex flex-wrap items-stretch gap-3 transition-colors cursor-pointer bg-white/75"
-              >
-                ${cardsHtml || `
-                  <div class="w-full flex items-center justify-center text-xs font-semibold text-navy/55 border-2 border-dashed border-navy/25 rounded-xl py-6 px-4 text-center select-none">
-                    ${state.selectedItemId ? 'Tap here to place selected bagel on this shelf' : 'Drag a bagel here or tap a card below to place'}
-                  </div>
-                `}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderCoolingRack() {
-      const rackEl = document.getElementById('unranked-zone');
-      const unrankedIds = state.placements.unranked || [];
-
-      const filteredItems = unrankedIds
-        .map(id => getItemById(id))
-        .filter(item => {
-          if (!item) return false;
-          if (state.activeFilter === 'all') return true;
-          return item.season === state.activeFilter;
-        });
-
-      if (filteredItems.length === 0) {
-        rackEl.innerHTML = `
-          <div class="col-span-full py-12 text-center border-2 border-dashed border-navy/40 rounded-2xl bg-cream/85">
-            <p class="font-display font-bold text-2xl text-navy uppercase">
-              ${unrankedIds.length === 0 ? 'Every limited drop is ranked.' : 'Nothing in this filter.'}
-            </p>
-            <p class="text-xs font-medium text-navy-muted mt-1.5">
-              ${unrankedIds.length === 0 ? 'Click Bake Ticket in the header to copy or print your ranking.' : 'Switch filter pills above to see your remaining limited drops.'}
-            </p>
-          </div>
-        `;
-        return;
-      }
-
-      rackEl.innerHTML = filteredItems.map(item => createDropCardHtml(item, false)).join('');
-    }
-
-    function createDropCardHtml(item, isCompact) {
-      const isSelected = state.selectedItemId === item.id;
-      const pillHtml = getCategoryPill(item);
-
-      if (isCompact) {
-        return `
-          <div
-            draggable="true"
-            ondragstart="handleDragStart(event, '${item.id}')"
-            ondragend="handleDragEnd(event)"
-            onclick="handleCardClick(event, '${item.id}')"
-            class="bagel-card rounded-xl p-3.5 w-full sm:w-[235px] flex flex-col justify-between cursor-grab active:cursor-grabbing select-none ${isSelected ? 'selected-drop' : ''}"
-          >
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="font-mono text-[11px] font-bold text-navy-muted">${item.num}</span>
-                ${pillHtml}
-              </div>
-              <h4 class="font-display font-bold text-base text-navy leading-snug">
-                ${item.name}
-              </h4>
-              ${item.pairing ? `<p class="text-[11px] font-medium text-navy-muted mt-1 line-clamp-1">${item.pairing}</p>` : ''}
-            </div>
-            <div class="mt-3 pt-2 border-t border-navy/15 flex items-center justify-between text-[11px]">
-              <span class="font-semibold text-navy-muted">${item.dropDate}</span>
-              <button onclick="moveItemToZone(event, '${item.id}', 'unranked')" title="Return to Cooling Rack" class="font-bold text-navy hover:text-sky-deep underline underline-offset-2 transition">
-                Remove
-              </button>
-            </div>
-          </div>
-        `;
-      }
-
-      return `
-        <div
-          draggable="true"
-          ondragstart="handleDragStart(event, '${item.id}')"
-          ondragend="handleDragEnd(event)"
-          onclick="handleCardClick(event, '${item.id}')"
-          class="bagel-card rounded-2xl p-5 flex flex-col justify-between cursor-grab active:cursor-grabbing select-none ${isSelected ? 'selected-drop' : ''}"
-        >
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="font-mono text-xs font-bold text-navy-muted">${item.num}</span>
-              ${pillHtml}
-            </div>
-            <h4 class="font-display font-bold text-xl text-navy leading-snug">
-              ${item.name}
-            </h4>
-            ${item.pairing ? `
-              <div class="mt-2 inline-block px-2.5 py-1 rounded-lg bg-sky-soft/75 border border-navy/20 text-[11px] font-semibold text-navy">
-                ${item.pairing}
-              </div>
-            ` : ''}
-            <p class="text-xs text-navy-muted mt-2.5 leading-relaxed">
-              ${item.description}
-            </p>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-navy/15 flex items-center justify-between text-[11px]">
-            <span class="text-navy-muted font-semibold">
-              ${item.dropDate}
-            </span>
-            <span class="font-bold px-2.5 py-0.5 rounded-full ${isSelected ? 'bg-navy text-sky' : 'bg-sky/45 text-navy'}">
-              ${isSelected ? 'Selected ✓' : 'Select →'}
-            </span>
-          </div>
-        </div>
-      `;
-    }
-
-    function updateFilterCounts() {
-      const unrankedItems = (state.placements.unranked || [])
-        .map(id => getItemById(id))
-        .filter(Boolean);
-
-      document.getElementById('count-all').textContent = unrankedItems.length;
-      document.getElementById('count-current').textContent = unrankedItems.filter(i => i.season === 'current').length;
-      document.getElementById('count-fall').textContent = unrankedItems.filter(i => i.season === 'fall').length;
-      document.getElementById('count-summer').textContent = unrankedItems.filter(i => i.season === 'summer').length;
-    }
-
-    function setFilter(filter) {
-      state.activeFilter = filter;
-      document.querySelectorAll('.filter-chip').forEach(btn => {
-        if (btn.dataset.filter === filter) {
-          btn.classList.remove('bg-cream', 'text-navy');
-          btn.classList.add('bg-navy', 'text-cream');
-        } else {
-          btn.classList.remove('bg-navy', 'text-cream');
-          btn.classList.add('bg-cream', 'text-navy');
-        }
-      });
-      renderCoolingRack();
-    }
-
-    // 5. DRAG & DROP + CLICK-TO-ASSIGN INTERACTIONS
-    let draggedItemId = null;
-
-    function handleDragStart(event, itemId) {
-      draggedItemId = itemId;
-      event.dataTransfer.setData('text/plain', itemId);
-      event.dataTransfer.effectAllowed = 'move';
-      setTimeout(() => {
-        if (event.target) event.target.style.opacity = '0.5';
-      }, 0);
-    }
-
-    function handleDragEnd(event) {
-      if (event.target) event.target.style.opacity = '1';
-      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-    }
-
-    function handleDragOver(event) {
-      event.preventDefault();
-      event.dataTransfer.dropEffect = 'move';
-      event.currentTarget.classList.add('drag-over');
-    }
-
-    function handleDragLeave(event) {
-      event.currentTarget.classList.remove('drag-over');
-    }
-
-    function handleDrop(event, targetZoneId) {
-      event.preventDefault();
-      event.currentTarget.classList.remove('drag-over');
-      const itemId = event.dataTransfer.getData('text/plain') || draggedItemId;
-      if (itemId) {
-        placeItemInZone(itemId, targetZoneId);
-      }
-      draggedItemId = null;
-    }
-
-    function handleCardClick(event, itemId) {
-      event.stopPropagation();
-      state.selectedItemId = state.selectedItemId === itemId ? null : itemId;
-      renderAll();
-    }
-
-    function handleZoneClick(targetZoneId) {
-      if (!state.selectedItemId) return;
-      placeItemInZone(state.selectedItemId, targetZoneId);
-    }
-
-    function moveItemToZone(event, itemId, targetZoneId) {
-      event.stopPropagation();
-      placeItemInZone(itemId, targetZoneId);
-    }
-
-    function placeItemInZone(itemId, targetZoneId) {
-      Object.keys(state.placements).forEach(zone => {
-        state.placements[zone] = state.placements[zone].filter(id => id !== itemId);
-      });
-      if (!state.placements[targetZoneId]) {
-        state.placements[targetZoneId] = [];
-      }
-      state.placements[targetZoneId].push(itemId);
-      state.selectedItemId = null;
-      saveState();
-      renderAll();
-    }
-
-    function clearSelection() {
-      state.selectedItemId = null;
-      renderAll();
-    }
-
-    function updateSelectionBanner() {
-      const statusEl = document.getElementById('selection-status');
-      const cancelBtn = document.getElementById('clear-selection-btn');
-      if (state.selectedItemId) {
-        const item = getItemById(state.selectedItemId);
-        statusEl.innerHTML = `Selected <span class="font-bold text-navy underline decoration-sky decoration-2">${item ? item.name : ''}</span> — click any tier row below to drop it in.`;
-        cancelBtn.classList.remove('hidden');
-      } else {
-        statusEl.innerHTML = `Drag any bagel onto a shelf below, or tap a bagel card and click a tier row to drop it in.`;
-        cancelBtn.classList.add('hidden');
-      }
-    }
-
-    // Load a curated sample ranking so users can preview a populated board in one click
-    function loadSampleRanking() {
-      const availableIds = new Set(state.items.map(i => i.id));
-      const sample = {
-        '1': ['drop-01', 'drop-02', 'drop-04'].filter(id => availableIds.has(id)),
-        '2': ['drop-03', 'drop-08', 'drop-14', 'drop-16'].filter(id => availableIds.has(id)),
-        '3': ['drop-06', 'drop-09', 'drop-10', 'drop-15'].filter(id => availableIds.has(id)),
-        '4': ['drop-05', 'drop-07', 'drop-11'].filter(id => availableIds.has(id)),
-        '5': ['drop-12', 'drop-13'].filter(id => availableIds.has(id)),
-        unranked: []
-      };
-
-      const placedSet = new Set([...sample['1'], ...sample['2'], ...sample['3'], ...sample['4'], ...sample['5']]);
-      state.items.forEach(item => {
-        if (!placedSet.has(item.id)) {
-          sample.unranked.push(item.id);
-        }
-      });
-
-      state.placements = sample;
-      state.selectedItemId = null;
-      saveState();
-      renderAll();
-      showToast('Loaded sample limited-drop ranking');
-    }
-
-    // 6. MODE SWITCHING (TIER RACK VS 1v1 BAKE-OFF)
-    function switchMode(mode) {
-      state.mode = mode;
-      const viewTier = document.getElementById('view-tier');
-      const viewBattle = document.getElementById('view-battle');
+    // 3. MODE SWITCHER
+    function switchMode(newMode) {
+      state.mode = newMode;
+      const tierView = document.getElementById('view-tier');
+      const battleView = document.getElementById('view-battle');
       const tabTier = document.getElementById('tab-tier');
       const tabBattle = document.getElementById('tab-battle');
 
-      if (mode === 'tier') {
-        viewTier.classList.remove('hidden');
-        viewBattle.classList.add('hidden');
-        tabTier.classList.add('bg-sky', 'text-navy');
-        tabTier.classList.remove('text-cream/80', 'hover:text-cream');
-        tabBattle.classList.remove('bg-sky', 'text-navy');
-        tabBattle.classList.add('text-cream/80', 'hover:text-cream');
-        renderAll();
+      if (newMode === 'tier') {
+        tierView.classList.remove('hidden');
+        battleView.classList.add('hidden');
+        tabTier.className = 'px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition bg-sky text-navy';
+        tabBattle.className = 'px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition text-cream/80 hover:text-cream';
+        renderRankList();
       } else {
-        viewTier.classList.add('hidden');
-        viewBattle.classList.remove('hidden');
-        tabBattle.classList.add('bg-sky', 'text-navy');
-        tabBattle.classList.remove('text-cream/80', 'hover:text-cream');
-        tabTier.classList.remove('bg-sky', 'text-navy');
-        tabTier.classList.add('text-cream/80', 'hover:text-cream');
-        if (!state.currentPair[0] || !state.currentPair[1]) {
+        tierView.classList.add('hidden');
+        battleView.classList.remove('hidden');
+        tabBattle.className = 'px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition bg-sky text-navy';
+        tabTier.className = 'px-4 py-1.5 rounded-full text-xs font-display font-bold tracking-wide transition text-cream/80 hover:text-cream';
+        if (!state.battlePair[0] || !state.battlePair[1]) {
           nextBattlePair();
+        } else {
+          renderBattleArena();
         }
-        renderBattleLeaderboard();
       }
     }
 
-    // 7. 1v1 HEAD-TO-HEAD "BAKE-OFF" LOGIC
-    function nextBattlePair() {
-      if (state.items.length < 2) return;
-      const sortedByMatches = [...state.items].sort((a, b) => (a.wins + a.losses) - (b.wins + b.losses));
-      const pool = sortedByMatches.slice(0, Math.max(4, Math.ceil(state.items.length * 0.7)));
-      
-      const first = pool[Math.floor(Math.random() * pool.length)];
-      let second = state.items[Math.floor(Math.random() * state.items.length)];
-      let guard = 0;
-      while (second.id === first.id && guard < 25) {
-        second = state.items[Math.floor(Math.random() * state.items.length)];
-        guard++;
+    function renderAll() {
+      const countBadge = document.getElementById('drop-count-badge');
+      if (countBadge) {
+        countBadge.textContent = `${state.order.length} Flavors`;
       }
-
-      state.currentPair = [first.id, second.id];
-      renderBattleCards();
+      renderRankList();
+      if (!state.battlePair[0] || !state.battlePair[1]) {
+        pickBattlePair();
+      }
+      renderBattleArena();
     }
 
-    function renderBattleCards() {
-      const leftItem = getItemById(state.currentPair[0]);
-      const rightItem = getItemById(state.currentPair[1]);
-      if (!leftItem || !rightItem) return;
+    // 4. COMPACT DRAG-AND-REORDER RANK LIST
+    function renderRankList() {
+      const container = document.getElementById('rank-list');
+      if (!container) return;
 
-      document.getElementById('battle-count').textContent = state.battleCount;
-      document.getElementById('contender-left').innerHTML = buildContenderHtml(leftItem);
-      document.getElementById('contender-right').innerHTML = buildContenderHtml(rightItem);
+      const itemMap = new Map(state.items.map(item => [item.id, item]));
+      container.innerHTML = '';
 
-      ['contender-left', 'contender-right'].forEach(elId => {
-        const el = document.getElementById(elId);
-        el.classList.remove('animate-gentle-fade');
-        void el.offsetWidth;
-        el.classList.add('animate-gentle-fade');
+      state.order.forEach((id, index) => {
+        const item = itemMap.get(id);
+        if (!item) return;
+
+        const rankNum = String(index + 1).padStart(2, '0');
+        const isTopThree = index < 3;
+        const row = document.createElement('div');
+        row.className = 'bagel-card rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3 cursor-grab active:cursor-grabbing select-none';
+        row.draggable = true;
+        row.dataset.id = item.id;
+
+        row.addEventListener('dragstart', (e) => {
+          state.draggedId = item.id;
+          row.classList.add('opacity-50');
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', item.id);
+          }
+        });
+
+        row.addEventListener('dragend', () => {
+          state.draggedId = null;
+          row.classList.remove('opacity-50');
+          document.querySelectorAll('#rank-list .drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        row.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (state.draggedId && state.draggedId !== item.id) {
+            row.classList.add('drag-over');
+          }
+        });
+
+        row.addEventListener('dragleave', () => {
+          row.classList.remove('drag-over');
+        });
+
+        row.addEventListener('drop', (e) => {
+          e.preventDefault();
+          row.classList.remove('drag-over');
+          const fromId = state.draggedId || (e.dataTransfer && e.dataTransfer.getData('text/plain'));
+          if (fromId && fromId !== item.id) {
+            reorderItems(fromId, item.id);
+          }
+        });
+
+        const badgeClass = isTopThree
+          ? 'bg-navy text-cream border-navy'
+          : 'bg-sky-soft text-navy border-navy/30';
+
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="text-navy/40 font-mono text-sm leading-none shrink-0" title="Drag to reorder">⋮⋮</span>
+            <span class="w-8 h-8 rounded-full border ${badgeClass} font-display font-bold text-xs flex items-center justify-center shrink-0">
+              #${rankNum}
+            </span>
+            <span class="font-display font-bold text-base sm:text-lg text-navy truncate">
+              ${escapeHtml(item.name)}
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="openDetailModal('${item.id}')" title="View pairing & drop date"
+              class="w-7 h-7 rounded-full border border-navy/30 bg-cream-light hover:bg-sky text-navy font-serif italic font-bold text-xs flex items-center justify-center transition">
+              i
+            </button>
+            <button type="button" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Move up"
+              class="w-7 h-7 rounded-full border border-navy bg-cream hover:bg-sky disabled:opacity-30 disabled:pointer-events-none text-navy font-bold text-xs flex items-center justify-center transition">
+              ↑
+            </button>
+            <button type="button" onclick="moveItem(${index}, 1)" ${index === state.order.length - 1 ? 'disabled' : ''} title="Move down"
+              class="w-7 h-7 rounded-full border border-navy bg-cream hover:bg-sky disabled:opacity-30 disabled:pointer-events-none text-navy font-bold text-xs flex items-center justify-center transition">
+              ↓
+            </button>
+          </div>
+        `;
+
+        container.appendChild(row);
       });
     }
 
-    function buildContenderHtml(item) {
-      const pillHtml = getCategoryPill(item);
+    function reorderItems(fromId, toId) {
+      const fromIndex = state.order.indexOf(fromId);
+      const toIndex = state.order.indexOf(toId);
+      if (fromIndex === -1 || toIndex === -1) return;
+
+      const updated = [...state.order];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+      state.order = updated;
+      saveState();
+      renderRankList();
+    }
+
+    function moveItem(index, delta) {
+      const targetIndex = index + delta;
+      if (targetIndex < 0 || targetIndex >= state.order.length) return;
+      const updated = [...state.order];
+      const [moved] = updated.splice(index, 1);
+      updated.splice(targetIndex, 0, moved);
+      state.order = updated;
+      saveState();
+      renderRankList();
+    }
+
+    function shuffleOrder() {
+      const shuffled = [...state.order];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      state.order = shuffled;
+      saveState();
+      renderRankList();
+      showToast('Shuffled bagel order');
+    }
+
+    // 5. 1v1 HEAD-TO-HEAD BAKE-OFF (ELO RANKING)
+    function pickBattlePair() {
+      if (state.items.length < 2) return;
+      const idxA = Math.floor(Math.random() * state.items.length);
+      let idxB = Math.floor(Math.random() * (state.items.length - 1));
+      if (idxB >= idxA) idxB += 1;
+      state.battlePair = [state.items[idxA].id, state.items[idxB].id];
+    }
+
+    function nextBattlePair() {
+      pickBattlePair();
+      renderBattleArena();
+    }
+
+    function renderBattleArena() {
+      const countEl = document.getElementById('battle-count');
+      if (countEl) countEl.textContent = state.battleCount;
+
+      const leftEl = document.getElementById('contender-left');
+      const rightEl = document.getElementById('contender-right');
+      if (!leftEl || !rightEl) return;
+
+      const leftItem = state.items.find(i => i.id === state.battlePair[0]);
+      const rightItem = state.items.find(i => i.id === state.battlePair[1]);
+      if (!leftItem || !rightItem) return;
+
+      leftEl.innerHTML = renderContenderCard(leftItem, '1');
+      rightEl.innerHTML = renderContenderCard(rightItem, '2');
+    }
+
+    function renderContenderCard(item, shortcutKey) {
       return `
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-4">
-            <span class="font-mono text-xs font-bold text-navy-muted">${item.num} · ${item.dropDate}</span>
-            ${pillHtml}
-          </div>
-          <h3 class="font-display font-bold text-2xl sm:text-3xl text-navy leading-tight">
-            ${item.name}
-          </h3>
-          ${item.pairing ? `
-            <div class="mt-2.5 inline-block px-3 py-1 rounded-lg bg-sky-soft/80 border border-navy/20 text-xs font-semibold text-navy">
-              ${item.pairing}
-            </div>
-          ` : ''}
-          <p class="text-sm text-navy/85 mt-3 leading-relaxed">
-            ${item.description}
-          </p>
-        </div>
-        <div class="mt-8 pt-4 border-t border-navy/20 flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <span class="px-2.5 py-0.5 rounded-full bg-sky/40 border border-navy/25 font-mono text-[10px] font-bold uppercase text-navy">
+            Press ${shortcutKey}
+          </span>
           <span class="font-mono text-[11px] font-bold text-navy-muted">
-            ${item.wins}W – ${item.losses}L · ${Math.round(item.elo)}
+            ${item.wins}W – ${item.losses}L
           </span>
-          <span class="px-4 py-1.5 rounded-full bg-navy text-cream group-hover:bg-cream group-hover:text-navy text-xs font-bold transition">
-            Pick this →
-          </span>
+        </div>
+        <div class="my-auto py-3">
+          <h3 class="font-display font-bold text-2xl sm:text-3xl text-navy leading-tight">
+            ${escapeHtml(item.name)}
+          </h3>
+        </div>
+        <div class="pt-4 border-t border-navy/15 flex items-center justify-between text-xs font-bold text-navy">
+          <span>Pick this bagel</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       `;
     }
 
     function voteBattle(side) {
-      const leftItem = getItemById(state.currentPair[0]);
-      const rightItem = getItemById(state.currentPair[1]);
+      const leftItem = state.items.find(i => i.id === state.battlePair[0]);
+      const rightItem = state.items.find(i => i.id === state.battlePair[1]);
       if (!leftItem || !rightItem) return;
 
       const winner = side === 'left' ? leftItem : rightItem;
@@ -1273,68 +987,22 @@
 
       const K = 32;
       const expectedWin = 1 / (1 + Math.pow(10, (loser.elo - winner.elo) / 400));
-      const expectedLoss = 1 / (1 + Math.pow(10, (winner.elo - loser.elo) / 400));
-
       winner.elo = Math.round(winner.elo + K * (1 - expectedWin));
-      loser.elo = Math.round(loser.elo + K * (0 - expectedLoss));
+      loser.elo = Math.round(loser.elo + K * (0 - (1 - expectedWin)));
       winner.wins += 1;
       loser.losses += 1;
-
       state.battleCount += 1;
+
       saveState();
-      renderBattleLeaderboard();
       nextBattlePair();
-    }
-
-    function renderBattleLeaderboard() {
-      const board = document.getElementById('battle-leaderboard');
-      const ranked = [...state.items].sort((a, b) => b.elo - a.elo);
-
-      board.innerHTML = ranked.map((item, idx) => {
-        const rankNum = idx + 1 < 10 ? `0${idx + 1}` : `${idx + 1}`;
-        return `
-          <div class="bg-navy border border-sky/25 rounded-xl p-3 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <span class="font-mono text-xs font-bold ${idx === 0 ? 'text-sky' : 'text-cream/65'} shrink-0">
-                ${rankNum}
-              </span>
-              <div class="truncate">
-                <div class="font-display font-bold text-base text-cream truncate">${item.name}</div>
-                <div class="text-[11px] text-cream/70">${item.wins}W – ${item.losses}L · ${item.badge}</div>
-              </div>
-            </div>
-            <div class="font-mono text-xs font-bold text-sky shrink-0">
-              ${item.elo}
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     function applyBakeOffToTiers() {
       const sorted = [...state.items].sort((a, b) => b.elo - a.elo);
-      const total = sorted.length;
-
-      state.placements = { '1': [], '2': [], '3': [], '4': [], '5': [], unranked: [] };
-
-      sorted.forEach((item, index) => {
-        const percentile = index / total;
-        if (percentile < 0.2) {
-          state.placements['1'].push(item.id);
-        } else if (percentile < 0.45) {
-          state.placements['2'].push(item.id);
-        } else if (percentile < 0.72) {
-          state.placements['3'].push(item.id);
-        } else if (percentile < 0.9) {
-          state.placements['4'].push(item.id);
-        } else {
-          state.placements['5'].push(item.id);
-        }
-      });
-
+      state.order = sorted.map(i => i.id);
       saveState();
       switchMode('tier');
-      showToast('Applied Bake-Off standings to Tier Rack');
+      showToast('Applied 1v1 Bake-Off standings to Rank List!');
     }
 
     function resetBattleStats() {
@@ -1345,17 +1013,15 @@
       });
       state.battleCount = 0;
       saveState();
-      renderBattleCards();
-      renderBattleLeaderboard();
-      showToast('Elo ratings reset to 1500');
+      nextBattlePair();
+      showToast('Reset 1v1 Bake-Off scores');
     }
 
-    // 8. ADD PAST DROP MODAL
+    // 6. ADD CUSTOM DROP MODAL
     function openAddModal() {
       const modal = document.getElementById('add-modal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      document.getElementById('drop-name').focus();
     }
 
     function closeAddModal() {
@@ -1366,97 +1032,83 @@
 
     function handleAddDrop(event) {
       event.preventDefault();
-      const name = document.getElementById('drop-name').value.trim();
-      const season = document.getElementById('drop-category').value;
-      const dropDate = document.getElementById('drop-date').value.trim() || 'Limited Drop';
-      const description = document.getElementById('drop-desc').value.trim();
+      const nameInput = document.getElementById('drop-name');
+      const categoryInput = document.getElementById('drop-category');
+      const dateInput = document.getElementById('drop-date');
+      const descInput = document.getElementById('drop-desc');
 
-      if (!name || !description) return;
+      const name = nameInput.value.trim();
+      if (!name) return;
 
-      const nextIndex = state.items.length + 1;
-      const numStr = nextIndex < 10 ? `0${nextIndex}` : `${nextIndex}`;
-      const badgeLabel = season === 'current' ? 'Current Drop' : 'Limited Drop';
-
-      const newDrop = {
+      const newNum = String(state.items.length + 1).padStart(2, '0');
+      const newItem = {
         id: 'custom-' + Date.now(),
-        num: numStr,
-        name,
-        season,
-        badge: badgeLabel,
-        pairing: '',
-        dropDate,
-        description,
+        num: newNum,
+        name: name,
+        season: categoryInput.value,
+        badge: 'Custom Drop',
+        pairing: descInput.value.trim() || 'Custom addition',
+        dropDate: dateInput.value.trim() || 'Archive Drop',
+        description: descInput.value.trim() || 'Added to custom ranking list.',
         elo: 1500,
         wins: 0,
         losses: 0
       };
 
-      state.items.push(newDrop);
-      state.placements.unranked.unshift(newDrop.id);
+      state.items.unshift(newItem);
+      state.order.unshift(newItem.id);
       saveState();
-
-      document.getElementById('add-drop-form').reset();
-      closeAddModal();
       renderAll();
-      showToast(`Added "${name}" to cooling rack`);
+      event.target.reset();
+      closeAddModal();
+      showToast(`Added "${name}" at #01`);
     }
 
-    // 9. BAKE TICKET RECEIPT MODAL
+    // 7. DETAIL POPOVER MODAL
+    function openDetailModal(id) {
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('detail-date').textContent = `${item.badge} · ${item.dropDate}`;
+      document.getElementById('detail-name').textContent = item.name;
+      document.getElementById('detail-pairing').textContent = item.pairing;
+      document.getElementById('detail-desc').textContent = item.description;
+
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // 8. BAKE TICKET RECEIPT MODAL
     function openReceiptModal() {
       const now = new Date();
-      document.getElementById('receipt-timestamp').textContent = now.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
+      document.getElementById('receipt-timestamp').textContent =
+        now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+        ' · ' +
+        now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
+      const itemMap = new Map(state.items.map(i => [i.id, i]));
       const contentEl = document.getElementById('receipt-content');
-      let totalRanked = 0;
-
-      const sectionsHtml = TIERS.map(tier => {
-        const ids = state.placements[tier.id] || [];
-        totalRanked += ids.length;
-        if (ids.length === 0) return '';
-
-        const lines = ids.map((id, i) => {
-          const item = getItemById(id);
-          if (!item) return '';
-          return `
-            <div class="flex items-baseline justify-between gap-3 py-1 border-b border-navy/15 last:border-b-0">
-              <span class="text-navy font-semibold">${i + 1}. ${item.name}</span>
-              <span class="font-mono text-[11px] text-navy-muted shrink-0">${item.num}</span>
-            </div>
-          `;
-        }).join('');
-
+      contentEl.innerHTML = state.order.map((id, idx) => {
+        const item = itemMap.get(id);
+        if (!item) return '';
+        const num = String(idx + 1).padStart(2, '0');
         return `
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="font-display font-bold text-sm text-navy">${tier.label} (${tier.title})</span>
-              <span class="font-mono text-[10px] font-bold text-navy-muted">${ids.length}</span>
+          <div class="flex items-baseline justify-between gap-3 py-1 border-b border-dashed border-navy/20">
+            <div class="flex items-baseline gap-2.5 min-w-0">
+              <span class="font-mono font-bold text-navy">#${num}</span>
+              <span class="font-display font-bold text-sm text-navy truncate">${escapeHtml(item.name)}</span>
             </div>
-            <div class="bg-white rounded-xl px-3.5 py-2 border border-navy/30">
-              ${lines}
-            </div>
+            <span class="font-mono text-[10px] text-navy-muted shrink-0">${escapeHtml(item.dropDate)}</span>
           </div>
         `;
       }).join('');
-
-      if (totalRanked === 0) {
-        contentEl.innerHTML = `
-          <div class="py-8 text-center text-navy-muted">
-            <p class="font-display font-bold text-xl text-navy uppercase">Your shelves are empty.</p>
-            <p class="mt-1">Place at least one bagel onto a shelf to generate your Bake Ticket.</p>
-          </div>
-        `;
-      } else {
-        contentEl.innerHTML = sectionsHtml + `
-          <div class="pt-2 flex justify-between text-xs font-bold text-navy">
-            <span>Total bagels ranked</span>
-            <span class="font-mono">${totalRanked} / ${state.items.length}</span>
-          </div>
-        `;
-      }
 
       const modal = document.getElementById('receipt-modal');
       modal.classList.remove('hidden');
@@ -1470,51 +1122,38 @@
     }
 
     function copyReceiptText() {
-      let lines = [
-        'OH NO! BAGELS — Limited Drop Tier Ranking',
-        '3156 N 1200 W, Suite 106 · Lehi, UT 84043',
-        'The oven is on. Here now. Gone soon.',
-        '----------------------------------------'
+      const itemMap = new Map(state.items.map(i => [i.id, i]));
+      const lines = [
+        'OH NO! BAGELS — LIMITED DROP RANKING',
+        '3156 N 1200 W, Suite 106 · Lehi, UT',
+        '------------------------------------'
       ];
-
-      let anyRanked = false;
-      TIERS.forEach(tier => {
-        const ids = state.placements[tier.id] || [];
-        if (ids.length > 0) {
-          anyRanked = true;
-          lines.push(`\n[${tier.label} · ${tier.title}]`);
-          ids.forEach((id, idx) => {
-            const item = getItemById(id);
-            if (item) lines.push(`  ${idx + 1}. ${item.name}`);
-          });
+      state.order.forEach((id, idx) => {
+        const item = itemMap.get(id);
+        if (item) {
+          lines.push(`#${String(idx + 1).padStart(2, '0')}  ${item.name}`);
         }
       });
+      lines.push('------------------------------------');
+      lines.push('The oven is on. Here now. Gone soon.');
 
-      if (!anyRanked) {
-        lines.push('\nNo bagels ranked yet.');
-      }
-
-      lines.push('\n----------------------------------------');
-      lines.push('ohnobagels.com');
-
-      const textToCopy = lines.join('\n');
-
-      const tempTextArea = document.createElement('textarea');
-      tempTextArea.value = textToCopy;
-      tempTextArea.style.position = 'fixed';
-      tempTextArea.style.left = '-9999px';
-      document.body.appendChild(tempTextArea);
-      tempTextArea.select();
+      const text = lines.join('\n');
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
       try {
         document.execCommand('copy');
-        showToast('Bake Ticket copied to clipboard');
-      } catch (err) {
-        showToast('Could not copy automatically');
+        showToast('Copied Bake Ticket to clipboard!');
+      } catch (e) {
+        showToast('Could not copy ticket');
       }
-      document.body.removeChild(tempTextArea);
+      document.body.removeChild(textarea);
     }
 
-    // 10. RESET CONFIRMATION DIALOG
+    // 9. RESET MODAL
     function confirmReset() {
       const modal = document.getElementById('reset-modal');
       modal.classList.remove('hidden');
@@ -1527,23 +1166,25 @@
       modal.classList.remove('flex');
     }
 
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     function executeReset() {
-      state.placements = {
-        '1': [],
-        '2': [],
-        '3': [],
-        '4': [],
-        '5': [],
-        unranked: state.items.map(item => item.id)
-      };
-      state.selectedItemId = null;
+      state.items = JSON.parse(JSON.stringify(DEFAULT_DROPS));
+      state.order = state.items.map(item => item.id);
       saveState();
       closeResetModal();
       renderAll();
-      showToast('Returned all bagels to cooling rack');
+      showToast('Restored default bagel order');
     }
 
-    // 11. TOAST HELPER
+    // 10. TOAST HELPER
     let toastTimeout = null;
     function showToast(message) {
       const toast = document.getElementById('toast');
