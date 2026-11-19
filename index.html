@@ -238,7 +238,7 @@
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky text-navy border border-navy text-xs font-bold mb-2.5">
             <span class="font-script text-base leading-none">Limited Drops</span>
             <span>·</span>
-            <span>16 Flavors</span>
+            <span id="drop-count-badge">16 Flavors</span>
           </div>
           <h2 class="font-display font-bold text-4xl sm:text-5xl tracking-tight text-navy uppercase leading-[1.02]">
             Rank the bake.
@@ -256,7 +256,7 @@
             Reset Order
           </button>
         </div>
-      </div>/
+      </div>
 
       <!-- SINGLE-SCREEN COMPACT RANKING STACK -->
       <div class="bg-sky border-2 border-navy rounded-3xl p-4 sm:p-6 shadow-soft">
@@ -350,7 +350,7 @@
         <span class="text-cream/85">Limited Drop Tier Ranker</span>
       </div>
       <div class="text-cream/80 text-center sm:text-right">
-        3156 N 1200 W, Suite 106 · Lehi, UT 84043 · <span class="text-sky font-semibold">Here now. Gone soon.</span>
+        Not an official website for Oh No! Bagels · <span class="text-sky font-semibold">Here now. Gone soon.</span>
       </div>
     </div>
   </footer>
@@ -1216,7 +1216,7 @@
       const itemMap = new Map(state.items.map(i => [i.id, i]));
       const lines = [
         'OH NO! BAGELS — LIMITED DROP RANKING',
-        '*not an official website for Oh No Bagels*',
+        '3156 N 1200 W, Suite 106 · Lehi, UT',
         '------------------------------------'
       ];
       state.order.forEach((id, idx) => {
